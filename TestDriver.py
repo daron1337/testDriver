@@ -8,6 +8,7 @@
 
 from xml.etree import ElementTree as etree
 from string import split
+import subprocess, shlex
 
 
 class TestDriver(object):
@@ -76,7 +77,96 @@ class TestDriver(object):
             for testId in self.testPlan[planName]:
                 self.testingCases.append(self.testCases.Cases[testId])
  
+    def RunTestCase(self, appPath):
+        '''
+        '''
+        for testCase in self.testingCases:
+            print "Running TestCase_%s" % testCase.id
+            if testCase.type == str(1):
+                self.RunTestCaseType1(appPath,testCase)
+            if testCase.type == str(2):
+                self.RunTestCaseType2(appPath,testCase)
+            if testCase.type == str(3):
+                self.RunTestCaseType3(appPath,testCase)
     
+    def RunTestCaseType1(self, appPath,testCase):
+        '''
+        lancia applicazione
+        action : richiedi all'utente di compiere un azione
+        dandogli un messaggio.
+        response: controlla che il log in stdout sia uguale a quello
+        memorizzato nella tag response corrispondente all id della action
+        '''
+        
+        testFailed = False
+        
+        app = subprocess.Popen([appPath],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+        for actionId, action in sorted(testCase.actions.iteritems()):
+            print action.action
+            for responseId, response in sorted(testCase.responses.iteritems()):
+                if responseId == actionId:
+                    log = response.response
+                    #check se il log --> nell'output, se si continua. 
+                    
+        '''
+        if testFailed == False:
+            print "Test Case %s passed" % (testCase.id)
+            app.kill()
+        '''
+        
+    
+    def RunTestCaseType2(self, appPath, testCase):
+        '''
+        lancia applicazione passando come parametri la stringa della action
+        response: controlla che il log in stdout sia uguale a quello
+        memorizzato nella tag response corrispondente all id della action
+        '''
+        testFailed = False
+        
+        for actionId, action in sorted(testCase.actions.iteritems()):
+            appArgs = appPath+' '+action.action
+            args = shlex.split(appArgs)
+            app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+            for responseId, response in sorted(testCase.responses.iteritems()):
+                if responseId == actionId:
+                    log = response.response
+                    #check se il log --> nell'output, se si continua. 
+        
+        '''
+        if testFailed == False:
+            print "Test Case %s passed" % (testCase.id)
+            app.kill()
+        '''
+        
+    
+    def RunTestCaseType3(self, appPath, testCase):
+        '''
+        lancia applicazione passando come parametri la stringa della action
+        response: utente deve rispondere YES/NO a un'asserzione (stringa response)
+        screenshots screencapture? tk per prendere screen?? tbd
+        '''
+        testFailed = False
+        
+        for actionId, action in sorted(testCase.actions.iteritems()):
+            appArgs = appPath+' '+action.action
+            args = shlex.split(appArgs)
+            app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+            for responseId, response in sorted(testCase.responses.iteritems()):
+                if responseId == actionId:
+                    print response.response
+                    print "YES/NO"  #YES, test passato. No, test Fallito
+                    user_answer = raw_input()
+                    if user_answer.find('y') != -1:
+                        pass
+                    else:
+                        testFailed = True
+                        app.kill()
+                        break
+                    
+        if testFailed == False:
+            print "Test Case %s passed" % (testCase.id)
+            app.kill()
+        
     
         
 def indent(elem, level=0):
