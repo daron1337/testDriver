@@ -8,8 +8,9 @@
 
 from xml.etree import ElementTree as etree
 from string import split
-import subprocess, shlex
-
+import subprocess, shlex, sys
+from threading import Thread
+from Tkinter import *
 
 class TestDriver(object):
     '''
@@ -76,7 +77,44 @@ class TestDriver(object):
             self.testPlan[planName][:] = testCasesIds[:]
             for testId in self.testPlan[planName]:
                 self.testingCases.append(self.testCases.Cases[testId])
- 
+
+    def Skip(self):
+        '''
+        '''
+        self.root = Tk()
+        frame = Frame(self.root)
+        frame.pack()
+        self.skipButton = Button(frame, text="SKIP", fg="red", command=self.doSkip)
+        self.skipButton.pack(side=LEFT)
+        self.root.mainloop()
+
+    def doSkip(self):
+        '''
+        '''
+        self.shouldStopPollingThread = True
+        self.root.quit()
+
+    def PollApp(self,app,testCase,actionId,testActions):
+        '''
+        '''
+        while app.poll() is None:
+            if self.shouldStopPollingThread:
+                print "OK"
+                self.root.quit()
+                app.returncode = 0
+                app.kill()
+                break
+            out = app.stdout.readline()
+            for responseId, response in sorted(testCase.responses.iteritems()):
+                if responseId == actionId:
+                    log = response.response
+                    if out.find(log) != -1:
+                        print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
+                        testActions[actionId] = True
+                        app.returncode = 0
+                        app.kill()
+                        self.root.quit()
+
     def RunTestCase(self, appPath):
         '''
         '''
@@ -97,10 +135,12 @@ class TestDriver(object):
         response: controlla che il log in stdout sia uguale a quello
         memorizzato nella tag response corrispondente all id della action
         '''
+        #TODO: da fixare!
         
         testFailed = False
-        
-        app = subprocess.Popen([appPath],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+        appArgs = appPath
+        args = shlex.split(appArgs)
+        app = subprocess.Popen(args, stdout=subprocess.PIPE)
         for actionId, action in sorted(testCase.actions.iteritems()):
             print action.action
             for responseId, response in sorted(testCase.responses.iteritems()):
@@ -113,7 +153,7 @@ class TestDriver(object):
             print "Test Case %s passed" % (testCase.id)
             app.kill()
         '''
-        
+ 
     
     def RunTestCaseType2(self, appPath, testCase):
         '''
@@ -121,53 +161,84 @@ class TestDriver(object):
         response: controlla che il log in stdout sia uguale a quello
         memorizzato nella tag response corrispondente all id della action
         '''
+
+        #TODO: kill process se tutto ok o se fallisce qualcosa!
+
+
         testFailed = False
-        
+        testActions = {}
+
         for actionId, action in sorted(testCase.actions.iteritems()):
+            testActions[actionId] = False
             appArgs = appPath+' '+action.action
             args = shlex.split(appArgs)
-            app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-            for responseId, response in sorted(testCase.responses.iteritems()):
-                if responseId == actionId:
-                    log = response.response
-                    #check se il log --> nell'output, se si continua. 
-        
-        '''
+            app = subprocess.Popen(args, stdout=subprocess.PIPE)
+            self.shouldStopPollingThread = False
+            pollingThread = Thread(target=self.PollApp,args=(app,testCase,actionId,testActions))
+            pollingThread.start()
+            #Chiama funzione che aspetta input da utente, se utente schiaccia Skip, shouldStopPollingThread diventa True
+            self.Skip()
+
+        for t in testActions.itervalues():
+            if t == False:
+                testFailed = True
+                print "TEST %s FAILED, (action %s)" % (testCase.id, actionId)
+
         if testFailed == False:
-            print "Test Case %s passed" % (testCase.id)
-            app.kill()
-        '''
-        
-    
+            print "TEST %s PASSED" % testCase.id
+
     def RunTestCaseType3(self, appPath, testCase):
         '''
         lancia applicazione passando come parametri la stringa della action
         response: utente deve rispondere YES/NO a un'asserzione (stringa response)
         screenshots screencapture? tk per prendere screen?? tbd
         '''
+        
+        #TODO: screenshot!
+         
         testFailed = False
         
         for actionId, action in sorted(testCase.actions.iteritems()):
-            appArgs = appPath+' '+action.action
-            args = shlex.split(appArgs)
-            app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-            for responseId, response in sorted(testCase.responses.iteritems()):
-                if responseId == actionId:
-                    print response.response
-                    print "YES/NO"  #YES, test passato. No, test Fallito
-                    user_answer = raw_input()
-                    if user_answer.find('y') != -1:
-                        pass
-                    else:
-                        testFailed = True
-                        app.kill()
-                        break
-                    
+            if testFailed  == False:
+                appArgs = appPath+' '+action.action  
+                args = shlex.split(appArgs)
+                app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+                for responseId, response in sorted(testCase.responses.iteritems()):
+                    if responseId == actionId:
+                        print response.response
+                        print "YES/NO"  #YES, test passato. No, test Fallito
+                        user_answer = raw_input()
+                        if user_answer.find('y') != -1:
+                            print "TestCase %s Action %s Passed\n" % (testCase.id, actionId)
+                            app.kill()
+                        else:
+                            testFailed = True
+                            app.kill()
+                            print "TEST %s FAILED, (action %s)" % (testCase.id, actionId)
+                            break
+                        
         if testFailed == False:
             print "Test Case %s passed" % (testCase.id)
             app.kill()
-        
+
+class SkipTest(object):
     
+    def __init__(self, master):
+        '''
+        class Constructor
+        '''
+        
+        frame = Frame(master)
+        frame.pack()
+        self.skip = Button(frame, text="SKIP", fg="red", command=self.doSkip)
+        self.skip.pack(side=LEFT)
+
+    def doSkip(self):
+        '''
+        '''
+        self.shouldStopPollingThread = True
+        #self.root.quit()
+
         
 def indent(elem, level=0):
     i = "\n" + level*"  "

@@ -107,8 +107,4 @@ class Response(object):
         Constructor
         '''
         self.id = id
-        self.response = response    
-        
-        
-        
-        
+        self.response = response            
