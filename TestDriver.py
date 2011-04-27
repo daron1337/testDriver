@@ -7,10 +7,10 @@
 ## Version:   $Revision: 0.1 $
 
 from xml.etree import ElementTree as etree
-from string import split
-import subprocess, shlex, sys
-from threading import Thread
-from Tkinter import *
+from string import split, lower
+from time import time
+import shlex
+from asyncproc import Process
 
 class TestDriver(object):
     '''
@@ -24,6 +24,7 @@ class TestDriver(object):
         self.testCases = None
         self.testPlan = {} #test_plan_name:testCasesIds
         self.testingCases = []
+        self.timeOut = 900
         
     def SetTestCases(self, testCases):
         '''
@@ -77,43 +78,12 @@ class TestDriver(object):
             self.testPlan[planName][:] = testCasesIds[:]
             for testId in self.testPlan[planName]:
                 self.testingCases.append(self.testCases.Cases[testId])
-
-    def Skip(self):
+    
+    
+    def SetTimeOut (self,timeOut):
         '''
         '''
-        self.root = Tk()
-        frame = Frame(self.root)
-        frame.pack()
-        self.skipButton = Button(frame, text="SKIP", fg="red", command=self.doSkip)
-        self.skipButton.pack(side=LEFT)
-        self.root.mainloop()
-
-    def doSkip(self):
-        '''
-        '''
-        self.shouldStopPollingThread = True
-        self.root.quit()
-
-    def PollApp(self,app,testCase,actionId,testActions):
-        '''
-        '''
-        while app.poll() is None:
-            if self.shouldStopPollingThread:
-                print "OK"
-                self.root.quit()
-                app.returncode = 0
-                app.kill()
-                break
-            out = app.stdout.readline()
-            for responseId, response in sorted(testCase.responses.iteritems()):
-                if responseId == actionId:
-                    log = response.response
-                    if out.find(log) != -1:
-                        print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
-                        testActions[actionId] = True
-                        app.returncode = 0
-                        app.kill()
-                        self.root.quit()
+        self.timeOut = timeOut #timeout in seconds [s]
 
     def RunTestCase(self, appPath):
         '''
@@ -129,117 +99,179 @@ class TestDriver(object):
     
     def RunTestCaseType1(self, appPath,testCase):
         '''
-        lancia applicazione
-        action : richiedi all'utente di compiere un azione
-        dandogli un messaggio.
-        response: controlla che il log in stdout sia uguale a quello
-        memorizzato nella tag response corrispondente all id della action
+        This method runs type1 tests. This kind of test takes asks user to do an
+        action and search for a log in the standard output of the
+        application to be tested. User can skip any test action using a 
+        Keyboard interrupt (CTRL+C)
+        If at least one action fails to retrieve its log, the test will fail.
+        A timeout has to be set before (default value is 15min)
         '''
-        #TODO: da fixare!
         
         testFailed = False
+        testActions = {}
+        
         appArgs = appPath
         args = shlex.split(appArgs)
-        app = subprocess.Popen(args, stdout=subprocess.PIPE)
-        for actionId, action in sorted(testCase.actions.iteritems()):
-            print action.action
-            for responseId, response in sorted(testCase.responses.iteritems()):
-                if responseId == actionId:
-                    log = response.response
-                    #check se il log --> nell'output, se si continua. 
-                    
-        '''
+        app = Process(args)
+        
+        
+        try:
+            for actionId, action in sorted(testCase.actions.iteritems()):
+                if testFailed == True:
+                    break
+                startTime = time()
+                testActions[actionId] = None
+                print actionId, action.action
+                print "Press CTRL-C to skip test"
+                while testActions[actionId] == None:
+                    out = app.read()
+                    for responseId, response in sorted(testCase.responses.iteritems()):
+                        if responseId == actionId:
+                            log = response.response
+                            
+                            if out.find(log) != -1:
+                                print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
+                                testActions[actionId] = True
+                            if out.find(log) == -1 and time()-startTime>self.timeOut:
+                                print "TestCase %s Action %s Failed" % (testCase.id, actionId)
+                                print "Press q to terminate this test or r to retry it"
+                                userInput = raw_input()  
+                                if userInput == 'q':
+                                    app.terminate()
+                                    testActions[actionId] = False
+                                    testFailed = True
+                                if userInput == 'r':
+                                    startTime = time()
+                                    print actionId, action.action
+                                if userInput != 'q' and userInput != 'r':
+                                    print "Press q to terminate this test or to retry it"
+                                    userInput = raw_input()
+                                                               
+        except KeyboardInterrupt:
+            print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
+            app.terminate()
+            testActions[actionId] = False
+            testFailed = True
+        
+        for id, t in testActions.iteritems():
+            if t == False:
+                testFailed = True
+                print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+
         if testFailed == False:
-            print "Test Case %s passed" % (testCase.id)
-            app.kill()
-        '''
- 
+            print "TEST %s PASSED" % testCase.id               
+         
     
     def RunTestCaseType2(self, appPath, testCase):
         '''
-        lancia applicazione passando come parametri la stringa della action
-        response: controlla che il log in stdout sia uguale a quello
-        memorizzato nella tag response corrispondente all id della action
+        This method runs type2 tests. This kind of test takes as input a list
+        of arguments (action) and search for a log in the standard output of the
+        application to be tested. User can skip any test actions using a 
+        Keyboard interrupt (CTRL+C)
+        If at least one action fails to retrieve its log, the test will fail.
+        A timeout has to be setted before (default value is 900sec)
         '''
-
-        #TODO: kill process se tutto ok o se fallisce qualcosa!
-
-
+        
         testFailed = False
         testActions = {}
-
-        for actionId, action in sorted(testCase.actions.iteritems()):
+        
+        try:
+            for actionId, action in sorted(testCase.actions.iteritems()):
+                if testFailed == True:
+                    break
+                print "Running Action %s, Press CTRL-C to skip test" % actionId    
+                testActions[actionId] = None
+                appArgs = appPath+' '+action.action
+                args = shlex.split(appArgs)
+                
+                app = Process(args)
+                startTime = time()
+                
+                while testActions[actionId] == None:
+                    
+                    out = app.read()
+                    for responseId, response in sorted(testCase.responses.iteritems()):
+                        if responseId == actionId:
+                            log = response.response
+                            if out.find(log) != -1:
+                                print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
+                                testActions[actionId] = True
+                                app.terminate()
+                            if out.find(log) == -1 and time()-startTime>self.timeOut:
+                                print "TestCase %s Action %s Failed" % (testCase.id, actionId)
+                                print "Press q to terminate this test or r to retry it"
+                                userInput = raw_input()  
+                                if userInput == 'q':
+                                    app.terminate()
+                                    testActions[actionId] = False
+                                    testFailed = True
+                                if userInput == 'r':
+                                    startTime = time()
+                                if userInput != 'q' and userInput != 'r':
+                                    print "Press q to terminate this test or to retry it"
+                                    userInput = raw_input()
+                                    
+        except KeyboardInterrupt:
+            print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
+            app.terminate()
             testActions[actionId] = False
-            appArgs = appPath+' '+action.action
-            args = shlex.split(appArgs)
-            app = subprocess.Popen(args, stdout=subprocess.PIPE)
-            self.shouldStopPollingThread = False
-            pollingThread = Thread(target=self.PollApp,args=(app,testCase,actionId,testActions))
-            pollingThread.start()
-            #Chiama funzione che aspetta input da utente, se utente schiaccia Skip, shouldStopPollingThread diventa True
-            self.Skip()
+            testFailed = True
 
-        for t in testActions.itervalues():
+        for id, t in testActions.iteritems():
             if t == False:
                 testFailed = True
-                print "TEST %s FAILED, (action %s)" % (testCase.id, actionId)
+                print "TEST %s FAILED, (action %s)" % (testCase.id, id)
 
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
 
     def RunTestCaseType3(self, appPath, testCase):
         '''
-        lancia applicazione passando come parametri la stringa della action
-        response: utente deve rispondere YES/NO a un'asserzione (stringa response)
-        screenshots screencapture? tk per prendere screen?? tbd
+        This method runs type3 tests. This kind of test takes as input a list
+        of arguments (action) and waits for user interaction. User has to answer
+        yes or no to an expected statement.
+        If at least one action fails (a negative answer from the user), the test will fail.
         '''
         
         #TODO: screenshot!
-         
         testFailed = False
-        
+        testActions = {}
         for actionId, action in sorted(testCase.actions.iteritems()):
-            if testFailed  == False:
-                appArgs = appPath+' '+action.action  
-                args = shlex.split(appArgs)
-                app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+            if testFailed == True:
+                break
+            
+            testActions[actionId] = None
+            appArgs = appPath+' '+action.action
+            args = shlex.split(appArgs)
+            
+            app = Process(args)
+        
+            while testActions[actionId] == None:
                 for responseId, response in sorted(testCase.responses.iteritems()):
                     if responseId == actionId:
                         print response.response
                         print "YES/NO"  #YES, test passato. No, test Fallito
-                        user_answer = raw_input()
+                        user_answer = lower(raw_input())
                         if user_answer.find('y') != -1:
                             print "TestCase %s Action %s Passed\n" % (testCase.id, actionId)
-                            app.kill()
-                        else:
+                            app.terminate()
+                            testActions[actionId] = True
+                        if user_answer.find('n') != -1:
+                            app.terminate()
+                            testActions[actionId] = False
                             testFailed = True
-                            app.kill()
-                            print "TEST %s FAILED, (action %s)" % (testCase.id, actionId)
-                            break
+                        if user_answer.find('n') == -1 and user_answer.find('y') == -1:
+                            pass
                         
+        for id, t in testActions.iteritems():
+            if t == False:
+                testFailed = True
+                print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+
         if testFailed == False:
-            print "Test Case %s passed" % (testCase.id)
-            app.kill()
+            print "TEST %s PASSED" % testCase.id
 
-class SkipTest(object):
-    
-    def __init__(self, master):
-        '''
-        class Constructor
-        '''
-        
-        frame = Frame(master)
-        frame.pack()
-        self.skip = Button(frame, text="SKIP", fg="red", command=self.doSkip)
-        self.skip.pack(side=LEFT)
 
-    def doSkip(self):
-        '''
-        '''
-        self.shouldStopPollingThread = True
-        #self.root.quit()
-
-        
 def indent(elem, level=0):
     i = "\n" + level*"  "
     if len(elem):
