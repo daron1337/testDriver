@@ -28,7 +28,7 @@ except getopt.GetoptError:
 project = TestCases()
 testDriver = TestDriver()
 
-#######DEFAULT VALUES FOR SW DEVELOPING############
+########DEFAULT VALUES FOR SW DEVELOPING############
 testCases = project.ReadXml('projects/pippo/TestCases.xml')  
 testDriver.SetTestCases(project)
 testDriver.ChooseTestCase('2')
@@ -36,7 +36,7 @@ testDriver.ChooseTestCase('2')
 #appPath = 'projects/pippo/archNE.app/Contents/MacOS/archNE'
 appPath = '/usr/bin/python -u Tester.py'
 #appPath = 'C:/Python26/python -u Tester.py'
-###################################################
+####################################################
 
 for opt, arg in opts:
     if opt in ("-a", "--app"):
