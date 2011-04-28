@@ -16,10 +16,11 @@ import sys, getopt
 #-p,--plan for loading an existing testplan
 #-n,--name + -l,--caseList for setting and saving a new testPlan (name, caseIds).
 #Example:(-n pippo -l 1,2,3)
+#-t, --timeOut for setting a timeOut value (in seconds)
 #===============================================================================
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:], "a:x:c:p:n:l:", ["app=", "xml=", "case=", "plan=", "name=", "caseList="]) 
+    opts, args = getopt.getopt(sys.argv[1:], "a:x:c:p:n:l:t:", ["app=", "xml=", "case=", "plan=", "name=", "caseList=", "timeOut="]) 
 except getopt.GetoptError: 
     print "Error"                                  
     sys.exit(2) 
@@ -55,14 +56,8 @@ for opt, arg in opts:
     if opt in ("-l", "--caseList"):
         caseList = arg
         testDriver.SetTestPlan(name,caseList)
-    
+    if opt in ("-t", "--timeOut"):
+        timeOut = arg
+        testDriver.SetTimeOut(timeOut)
+        
 testDriver.RunTestCase(appPath)
-
-
-#appArgs = appPath+' -x 3'
-#args = shlex.split(appArgs)
-#app = subprocess.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-#print app.stdin
-#data = app.stdout.read()
-#print data
-

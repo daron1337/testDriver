@@ -14,7 +14,12 @@ from xml.etree import ElementTree as etree
 
 class TestCases(object):
     '''
-    classdocs
+    TestCases class reads xml input file setting
+    actions and responses for each case into TestCase object.
+    Each testCases object is identified by project Id, name and version.
+    This class has the following methods:
+    ReadXml: a method for reading xml input file.
+    ListCases: a method for printing a summary of test cases.
     '''
 
     def __init__(self):
@@ -29,6 +34,7 @@ class TestCases(object):
         
     def ReadXml(self, xmlpath):
         '''
+        Reading xml input file.
         '''
         self.xmlPath = xmlpath
         xmldoc = open(xmlpath)
@@ -36,9 +42,7 @@ class TestCases(object):
         project=xmltree.getroot()
         self.projectId = project.attrib['id']
         self.projectName = project.attrib['name']
-        self.projectVersion = project.attrib['version']
-        
-        
+        self.projectVersion = project.attrib['version']   
         for tc in project.findall(".//testCase"):
             case = TestCase(tc.attrib['id'],tc.attrib['sd'],tc.attrib['type'])
             for req in tc.findall(".//requirement"):
@@ -50,11 +54,11 @@ class TestCases(object):
                 responseElement = Response(resp.attrib['id'],resp.text)
                 case.responses[responseElement.id]= responseElement
             self.Cases[case.id] = case
-        
         return self.Cases
                
     def ListCases(self):
         '''
+        Printing a summary of test cases.
         '''
         print "Project",self.projectId,self.projectName,"version",self.projectVersion
         print "#####################"
@@ -73,6 +77,13 @@ class TestCases(object):
         
 class TestCase(object):
     '''
+    TestCase class represents specific test case identified by:
+    id: unique Id.
+    sd: sequence diagram id related to this test case.
+    type: test case type (1,2,3).
+    requirements: list of requirements related to this test case.
+    actions: dictionary of actions to be executed.
+    responses: dictionary of responses to be expected for each action.
     '''
     
     def __init__(self, id, sd, type):
@@ -89,6 +100,8 @@ class TestCase(object):
 
 class Action(object):
     '''
+    Action class represents each action of a test case and it is
+    identified by an unique id and composed by an action.
     '''
     
     def __init__(self, id, action):
@@ -100,6 +113,8 @@ class Action(object):
     
 class Response(object):
     '''
+    Response class represents each response of a test case and it is
+    identified by an unique id and composed by a response.
     '''
     
     def __init__(self, id, response):

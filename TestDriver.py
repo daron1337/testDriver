@@ -14,7 +14,20 @@ from asyncproc import Process
 
 class TestDriver(object):
     '''
-    classdocs
+    TestDriver class runs test cases of different types.
+    The application to be tested is launched using
+    asynchronous process.
+    This class has the following methods:
+    SetTestCases: a method for setting test cases.
+    ChooseTestCase: a method for choosing specific test case.
+    SetTestPlan: a method for creating a new test plan and 
+    saving it in a specific xml file.
+    GetTestPlan: a method for loading a test plan defined previously.
+    SetTimeOut: a method for setting testing timeout value (in seconds).
+    RunTestCase: a method for running selected test case calling specific method.
+    RunTestCaseType1: a method for running type1 tests.
+    RunTestCaseType2: a method for running type2 tests.
+    RunTestCaseType3: a method for running type3 tests.
     '''
 
     def __init__(self):
@@ -28,12 +41,13 @@ class TestDriver(object):
         
     def SetTestCases(self, testCases):
         '''
-        Setting test cases from testCase xml
+        Setting test cases from testCase xml.
         '''
         self.testCases = testCases
         
     def ChooseTestCase(self,testId):
         '''
+        Choosing specific test case.
         '''
         self.testingCases.append(self.testCases.Cases[testId])
 
@@ -44,11 +58,9 @@ class TestDriver(object):
         '''
         self.testPlan[planName] = []
         testCasesIds=split(testCasesIds,",")
-        self.testPlan[planName][:] = testCasesIds[:]
-        
+        self.testPlan[planName][:] = testCasesIds[:]     
         for testId in self.testPlan[planName]:
-            self.testingCases.append(self.testCases.Cases[testId])
-                    
+            self.testingCases.append(self.testCases.Cases[testId])              
         filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)
         root = etree.Element("Project", id=self.testCases.projectId, name=self.testCases.projectName, version=self.testCases.projectVersion)
         plan = etree.ElementTree(root)
@@ -61,10 +73,9 @@ class TestDriver(object):
         
     def GetTestPlan(self, planName):
         '''
-        Loading a test plan defined previously
+        Loading a test plan defined previously.
         '''
-        filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)
-        
+        filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)    
         xmldoc = open(filepath)
         xmltree=etree.parse(xmldoc)
         project=xmltree.getroot()
@@ -79,14 +90,15 @@ class TestDriver(object):
             for testId in self.testPlan[planName]:
                 self.testingCases.append(self.testCases.Cases[testId])
     
-    
     def SetTimeOut (self,timeOut):
         '''
+        Setting timeout value (in seconds)
         '''
         self.timeOut = timeOut #timeout in seconds [s]
 
     def RunTestCase(self, appPath):
         '''
+        Running selected test case calling specific method.
         '''
         for testCase in self.testingCases:
             print "Running TestCase_%s" % testCase.id
@@ -106,15 +118,11 @@ class TestDriver(object):
         If at least one action fails to retrieve its log, the test will fail.
         A timeout has to be set before (default value is 15min)
         '''
-        
         testFailed = False
         testActions = {}
-        
         appArgs = appPath
         args = shlex.split(appArgs)
         app = Process(args)
-        
-        
         try:
             for actionId, action in sorted(testCase.actions.iteritems()):
                 if testFailed == True:
@@ -159,8 +167,7 @@ class TestDriver(object):
                 print "TEST %s FAILED, (action %s)" % (testCase.id, id)
 
         if testFailed == False:
-            print "TEST %s PASSED" % testCase.id               
-         
+            print "TEST %s PASSED" % testCase.id         
     
     def RunTestCaseType2(self, appPath, testCase):
         '''
@@ -170,11 +177,9 @@ class TestDriver(object):
         Keyboard interrupt (CTRL+C)
         If at least one action fails to retrieve its log, the test will fail.
         A timeout has to be setted before (default value is 900sec)
-        '''
-        
+        '''       
         testFailed = False
         testActions = {}
-        
         try:
             for actionId, action in sorted(testCase.actions.iteritems()):
                 if testFailed == True:
@@ -182,13 +187,10 @@ class TestDriver(object):
                 print "Running Action %s, Press CTRL-C to skip test" % actionId    
                 testActions[actionId] = None
                 appArgs = appPath+' '+action.action
-                args = shlex.split(appArgs)
-                
+                args = shlex.split(appArgs)          
                 app = Process(args)
-                startTime = time()
-                
-                while testActions[actionId] == None:
-                    
+                startTime = time()              
+                while testActions[actionId] == None:   
                     out = app.read()
                     for responseId, response in sorted(testCase.responses.iteritems()):
                         if responseId == actionId:
@@ -209,8 +211,7 @@ class TestDriver(object):
                                     startTime = time()
                                 if userInput != 'q' and userInput != 'r':
                                     print "Press q to terminate this test or to retry it"
-                                    userInput = raw_input()
-                                    
+                                    userInput = raw_input()                           
         except KeyboardInterrupt:
             print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
             app.terminate()
@@ -231,21 +232,17 @@ class TestDriver(object):
         of arguments (action) and waits for user interaction. User has to answer
         yes or no to an expected statement.
         If at least one action fails (a negative answer from the user), the test will fail.
-        '''
-        
+        '''    
         #TODO: screenshot!
         testFailed = False
         testActions = {}
         for actionId, action in sorted(testCase.actions.iteritems()):
             if testFailed == True:
-                break
-            
+                break      
             testActions[actionId] = None
             appArgs = appPath+' '+action.action
             args = shlex.split(appArgs)
-            
             app = Process(args)
-        
             while testActions[actionId] == None:
                 for responseId, response in sorted(testCase.responses.iteritems()):
                     if responseId == actionId:
