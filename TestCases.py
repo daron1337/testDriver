@@ -45,6 +45,8 @@ class TestCases(object):
         self.projectVersion = project.attrib['version']   
         for tc in project.findall(".//testCase"):
             case = TestCase(tc.attrib['id'],tc.attrib['sd'],tc.attrib['type'])
+            for descr in tc.findall(".//description"):
+                case.description = descr.text
             for req in tc.findall(".//requirement"):
                 case.requirements.append(req.text)
             for act in tc.findall(".//action"):
@@ -81,6 +83,7 @@ class TestCase(object):
     id: unique Id.
     sd: sequence diagram id related to this test case.
     type: test case type (1,2,3).
+    description: a short description of this test case.
     requirements: list of requirements related to this test case.
     actions: dictionary of actions to be executed.
     responses: dictionary of responses to be expected for each action.
@@ -94,8 +97,10 @@ class TestCase(object):
         self.sd = sd
         self.type = type
         self.requirements = []
+        self.description = None
         self.actions = {} # actions dictionary, id:action
         self.responses = {} # responses dictionary, id:action
+        self.status = None
         
 
 class Action(object):

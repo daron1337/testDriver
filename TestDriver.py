@@ -94,14 +94,15 @@ class TestDriver(object):
         '''
         Setting timeout value (in seconds)
         '''
-        self.timeOut = timeOut #timeout in seconds [s]
+        self.timeOut = float(timeOut) #timeout in seconds [s]
 
     def RunTestCase(self, appPath):
         '''
         Running selected test case calling specific method.
         '''
         for testCase in self.testingCases:
-            print "Running TestCase_%s" % testCase.id
+            print "\nRunning TestCase_%s" % testCase.id
+            print testCase.description
             if testCase.type == str(1):
                 self.RunTestCaseType1(appPath,testCase)
             if testCase.type == str(2):
@@ -136,7 +137,6 @@ class TestDriver(object):
                     for responseId, response in sorted(testCase.responses.iteritems()):
                         if responseId == actionId:
                             log = response.response
-                            
                             if out.find(log) != -1:
                                 print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
                                 testActions[actionId] = True
@@ -165,9 +165,11 @@ class TestDriver(object):
             if t == False:
                 testFailed = True
                 print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+                testCase.status = 'FAILED (%s)' % id 
 
         if testFailed == False:
-            print "TEST %s PASSED" % testCase.id         
+            print "TEST %s PASSED" % testCase.id
+            testCase.status = 'PASSED'       
     
     def RunTestCaseType2(self, appPath, testCase):
         '''
@@ -200,18 +202,11 @@ class TestDriver(object):
                                 testActions[actionId] = True
                                 app.terminate()
                             if out.find(log) == -1 and time()-startTime>self.timeOut:
-                                print "TestCase %s Action %s Failed" % (testCase.id, actionId)
-                                print "Press q to terminate this test or r to retry it"
-                                userInput = raw_input()  
-                                if userInput == 'q':
-                                    app.terminate()
-                                    testActions[actionId] = False
-                                    testFailed = True
-                                if userInput == 'r':
-                                    startTime = time()
-                                if userInput != 'q' and userInput != 'r':
-                                    print "Press q to terminate this test or to retry it"
-                                    userInput = raw_input()                           
+                                print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
+                                app.terminate()
+                                testActions[actionId] = False
+                                testFailed = True 
+                                                     
         except KeyboardInterrupt:
             print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
             app.terminate()
@@ -222,9 +217,11 @@ class TestDriver(object):
             if t == False:
                 testFailed = True
                 print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+                testCase.status = 'FAILED (%s)' % id 
 
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
+            testCase.status = 'PASSED'
 
     def RunTestCaseType3(self, appPath, testCase):
         '''
@@ -264,10 +261,11 @@ class TestDriver(object):
             if t == False:
                 testFailed = True
                 print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+                testCase.status = 'FAILED (%s)' % id 
 
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
-
+            testCase.status = 'PASSED'
 
 def indent(elem, level=0):
     i = "\n" + level*"  "

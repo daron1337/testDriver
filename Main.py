@@ -8,6 +8,7 @@
 
 from TestCases import TestCases
 from TestDriver import TestDriver
+from TestResults import TestResults
 import sys, getopt
 
 #===============================================================================
@@ -27,11 +28,12 @@ except getopt.GetoptError:
 
 project = TestCases()
 testDriver = TestDriver()
+testResults = TestResults()
 
 ########DEFAULT VALUES FOR SW DEVELOPING############
 testCases = project.ReadXml('projects/pippo/TestCases.xml')  
 testDriver.SetTestCases(project)
-testDriver.ChooseTestCase('2')
+#testDriver.ChooseTestCase('2')
 #testDriver.GetTestPlan('pluto')
 #appPath = 'projects/pippo/archNE.app/Contents/MacOS/archNE'
 appPath = '/usr/bin/python -u Tester.py'
@@ -61,3 +63,7 @@ for opt, arg in opts:
         testDriver.SetTimeOut(timeOut)
         
 testDriver.RunTestCase(appPath)
+testResults.SetTestingResults(testDriver)
+testResults.RetrieveResults()
+testResults.WriteXml()
+testResults.WriteTxt()
