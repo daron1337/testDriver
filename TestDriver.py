@@ -133,27 +133,28 @@ class TestDriver(object):
                 print actionId, action.action
                 print "Press CTRL-C to skip test"
                 while testActions[actionId] == None:
-                    out = app.read()
-                    for responseId, response in sorted(testCase.responses.iteritems()):
-                        if responseId == actionId:
-                            log = response.response
-                            if out.find(log) != -1:
-                                print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
-                                testActions[actionId] = True
-                            if out.find(log) == -1 and time()-startTime>self.timeOut:
-                                print "TestCase %s Action %s Failed" % (testCase.id, actionId)
-                                print "Press q to terminate this test or r to retry it"
-                                userInput = raw_input()  
-                                if userInput == 'q':
-                                    app.terminate()
-                                    testActions[actionId] = False
-                                    testFailed = True
-                                if userInput == 'r':
-                                    startTime = time()
-                                    print actionId, action.action
-                                if userInput != 'q' and userInput != 'r':
-                                    print "Press q to terminate this test or to retry it"
-                                    userInput = raw_input()
+                    outAndErr = app.readboth()
+                    for out in outAndErr:
+                        for responseId, response in sorted(testCase.responses.iteritems()):
+                            if responseId == actionId:
+                                log = response.response
+                                if out.find(log) != -1:
+                                    print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
+                                    testActions[actionId] = True
+                                if out.find(log) == -1 and time()-startTime>self.timeOut:
+                                    print "TestCase %s Action %s Failed" % (testCase.id, actionId)
+                                    print "Press q to terminate this test or r to retry it"
+                                    userInput = raw_input()  
+                                    if userInput == 'q':
+                                        app.terminate()
+                                        testActions[actionId] = False
+                                        testFailed = True
+                                    if userInput == 'r':
+                                        startTime = time()
+                                        print actionId, action.action
+                                    if userInput != 'q' and userInput != 'r':
+                                        print "Press q to terminate this test or to retry it"
+                                        userInput = raw_input()
                                                                
         except KeyboardInterrupt:
             print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
@@ -193,19 +194,20 @@ class TestDriver(object):
                 app = Process(args)
                 startTime = time()              
                 while testActions[actionId] == None:   
-                    out = app.read()
-                    for responseId, response in sorted(testCase.responses.iteritems()):
-                        if responseId == actionId:
-                            log = response.response
-                            if out.find(log) != -1:
-                                print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
-                                testActions[actionId] = True
-                                app.terminate()
-                            if out.find(log) == -1 and time()-startTime>self.timeOut:
-                                print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
-                                app.terminate()
-                                testActions[actionId] = False
-                                testFailed = True 
+                    outAndErr = app.readboth()
+                    for out in outAndErr:
+                        for responseId, response in sorted(testCase.responses.iteritems()):
+                            if responseId == actionId:
+                                log = response.response
+                                if out.find(log) != -1:
+                                    print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
+                                    testActions[actionId] = True
+                                    app.terminate()
+                                if out.find(log) == -1 and time()-startTime>self.timeOut:
+                                    print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
+                                    app.terminate()
+                                    testActions[actionId] = False
+                                    testFailed = True 
                                                      
         except KeyboardInterrupt:
             print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
