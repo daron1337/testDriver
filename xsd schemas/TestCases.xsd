@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--Project: root element-->
+  <xsd:element name="Project" type="projectType">
+    <xsd:annotation>
+	  <xsd:documentation>XML Schema for TestCases. The first element declared (root element)is
+	  called Project. TestCases element is the leaf element containing testCase elements; each of
+	  these is identified by a unique ID-
+      The rest of the file contains the definition of all used types.
+      Last updated on 2011-05-02 by Simone Manini.
+      </xsd:documentation>
+	</xsd:annotation>
+  </xsd:element>
+  
+  <!--Project type-->
+	<xsd:complexType name="projectType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="testCases" type="testCasesType"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:integer" use="required"/>
+		<xsd:attribute name="name" type="xsd:string" use="required"/>
+		<xsd:attribute name="version" type="xsd:string" use="required"/>
+	</xsd:complexType>
+	
+ <!--TestCases type-->
+	<xsd:complexType name="testCasesType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="testCase" type="testCaseType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+ <!--TestCase type-->
+	<xsd:complexType name="testCaseType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" minOccurs="1" name="description" type="xsd:string"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="requirements" type="requirementsType"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="actions" type="actionsType"/>
+			<xsd:element maxOccurs="1" minOccurs="1" name="responses" type="responsesType"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:integer" use="required"/>
+		<xsd:attribute name="sd" type="xsd:integer" use="required"/>
+		<xsd:attribute name="type" type="caseTypeType" use="required"/>
+	</xsd:complexType>
+	
+	<xsd:simpleType name="caseTypeType">
+		<xsd:restriction base="xsd:token">
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+ <!--Requirements type-->
+	<xsd:complexType name="requirementsType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="requirement" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+ <!--Actions type-->
+	<xsd:complexType name="actionsType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="action" type="actionType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+ 
+ <!--Action type-->
+	<xsd:complexType name="actionType">
+	  <xsd:simpleContent>
+		<xsd:extension base="xsd:string">
+		  <xsd:attribute name="id" type="xsd:integer" />
+        </xsd:extension>
+     </xsd:simpleContent>
+   </xsd:complexType>
+   
+  <!--Responses type-->
+	<xsd:complexType name="responsesType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="response" type="responseType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+ 
+ <!--Response type-->
+	<xsd:complexType name="responseType">
+	  <xsd:simpleContent>
+		<xsd:extension base="xsd:string">
+		  <xsd:attribute name="id" type="xsd:integer" />
+        </xsd:extension>
+     </xsd:simpleContent>
+   </xsd:complexType>
+</xsd:schema>
+	
