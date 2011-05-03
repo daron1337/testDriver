@@ -268,15 +268,18 @@ class TestDriver(object):
             if t == False:
                 testFailed = True
                 print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+                self.TakeScreenshot(testCase.id, id)
                 testCase.status = 'FAILED (%s)' % id 
 
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
+            self.TakeScreenshot(testCase.id)
             testCase.status = 'PASSED'
             
-    def TakeScreenshot(self, testCaseId, actionId):
+    def TakeScreenshot(self, testCaseId, actionId=None):
         '''
         '''
+        
         thisApp = wx.App( redirect=False )      # Need to access WX functionality without MainLoop().
     
         # Capture the entire primary Desktop screen.
@@ -286,8 +289,11 @@ class TestDriver(object):
         captureStartPos = (0, 0)    # Arbitrary U-L position anywhere within the screen
         bitmap = ScreenCapture( captureStartPos, captureBmapSize )
         
-        folder = 'projects/%s/results' % (self.testCases.projectName) 
-        fileBasename = 'test%s_action_%s' %(testCaseId,actionId)
+        folder = 'projects/%s/results/' % (self.testCases.projectName)
+        if actionId == None:
+            fileBasename = 'test%s' %(testCaseId)
+        else:
+            fileBasename = 'test%s_action_%s' %(testCaseId,actionId)
         fileExt = '.png'
         filename = folder + fileBasename + fileExt
         bitmap.SaveFile( filename, wx.BITMAP_TYPE_PNG )
@@ -324,7 +330,7 @@ def ScreenCapture( captureStartPos, captureBmapSize ):
     if   scrDcBmapSize == (0, 0) :      # Not implemented :  Get the screen bitmap the long way.
 
         # Create a new empty (black) destination bitmap the size of the scrDC. 
-        scrDcBmap = wx.EmptyBitmap( *scrDcSize )    # Overwrire the invalid original assignment.
+        scrDcBmap = wx.EmptyBitmap( *scrDcSize )    # Overwrite the invalid original assignment.
         scrDcBmapSizeX, scrDcBmapSizeY = scrDcSize
 
         # Create a DC tool that is associated with scrDcBmap.
