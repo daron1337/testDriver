@@ -117,7 +117,7 @@ class TestDriver(object):
         application to be tested. User can skip any test action using a 
         Keyboard interrupt (CTRL+C)
         If at least one action fails to retrieve its log, the test will fail.
-        A timeout has to be set before (default value is 15min)
+        A timeout has to be set before (default value is 15min).
         '''
         testFailed = False
         testActions = {}
