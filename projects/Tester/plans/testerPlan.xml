@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project id="00001" name="Tester" version="0.1">
+  <testPlan name="pluto">
+    <testCase>1</testCase>
+    <testCase>2</testCase>
+    <testCase>3</testCase>
+  </testPlan>
+</Project>
