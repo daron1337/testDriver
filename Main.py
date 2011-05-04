@@ -31,12 +31,12 @@ testDriver = TestDriver()
 testResults = TestResults()
 
 ########DEFAULT VALUES FOR SW DEVELOPING############
-testCases = project.ReadXml('projects/pippo/TestCases.xml')  
+testCases = project.ReadXml('projects/Tester/TestCases.xml')  
 testDriver.SetTestCases(project)
 #testDriver.ChooseTestCase('2')
 #testDriver.GetTestPlan('pluto')
 #appPath = 'projects/pippo/archNE.app/Contents/MacOS/archNE'
-appPath = '/usr/bin/python -u Tester.py'
+appPath = '/usr/bin/python -u projects/Tester/Tester.py'
 #appPath = 'C:/Python26/python -u Tester.py'
 ####################################################
 

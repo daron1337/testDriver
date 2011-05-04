@@ -278,6 +278,7 @@ class TestDriver(object):
             
     def TakeScreenshot(self, testCaseId, actionId=None):
         '''
+        This method takes a screenshot.
         '''
         
         thisApp = wx.App( redirect=False )      # Need to access WX functionality without MainLoop().
