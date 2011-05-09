@@ -170,11 +170,12 @@ class TestDriver(object):
             if t == False:
                 testFailed = True
                 print "TEST %s FAILED, (action %s)" % (testCase.id, id)
-                testCase.status = 'FAILED (%s)' % id 
+                testCase.status = 'FAILED (%s)' % id  
 
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
-            testCase.status = 'PASSED'       
+            testCase.status = 'PASSED'
+            app.terminate()    
     
     def RunTestCaseType2(self, appPath, testCase):
         '''

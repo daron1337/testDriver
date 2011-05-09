@@ -31,11 +31,11 @@ testDriver = TestDriver()
 testResults = TestResults()
 
 ########DEFAULT VALUES FOR SW DEVELOPING############
-testCases = project.ReadXml('projects/Tester/TestCases.xml')  
-testDriver.SetTestCases(project)
+#testCases = project.ReadXml('projects/Tester/TestCases.xml')  
+#testDriver.SetTestCases(project)
 #testDriver.ChooseTestCase('2')
 #testDriver.GetTestPlan('pluto')
-appPath = '/usr/bin/python -u projects/Tester/Tester.py'
+#appPath = '/usr/bin/python -u projects/Tester/Tester.py'
 ####################################################
 
 for opt, arg in opts:
