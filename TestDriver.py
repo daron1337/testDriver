@@ -134,7 +134,7 @@ class TestDriver(object):
                     break
                 startTime = time()
                 testActions[actionId] = None
-                print actionId, action.action
+                print "\n", actionId, action.action
                 print "Press CTRL-C to skip test"
                 while testActions[actionId] == None:
                     outAndErr = app.readboth()
@@ -250,7 +250,7 @@ class TestDriver(object):
             while testActions[actionId] == None:
                 for responseId, response in sorted(testCase.responses.iteritems()):
                     if responseId == actionId:
-                        print response.response
+                        print "\n", response.response
                         print "YES/NO"  #YES, test passato. No, test Fallito
                         user_answer = lower(raw_input())
                         if user_answer.find('y') != -1:
