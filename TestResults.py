@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
 ## Program:   testDriver
-## Module:    testResults.py
+## Module:    TestResults.py
 ## Language:  Python
-## Date:      $Date: 2011/05/02 09:12:11 $
+## Date:      $Date: 2011/05/12 14:42:02 $
 ## Version:   $Revision: 0.1 $
+
+##      This software is distributed WITHOUT ANY WARRANTY; without even 
+##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##      PURPOSE.  See the above copyright notices for more information.
 
 from xml.etree import ElementTree as etree
 from TestDriver import TestDriver

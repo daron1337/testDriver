@@ -3,8 +3,12 @@
 ## Program:   testDriver
 ## Module:    testDriver.py
 ## Language:  Python
-## Date:      $Date: 2011/04/13 14:11:27 $
+## Date:      $Date: 2011/05/12 14:41:28 $
 ## Version:   $Revision: 0.1 $
+
+##      This software is distributed WITHOUT ANY WARRANTY; without even 
+##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##      PURPOSE.  See the above copyright notices for more information.
 
 try:
     import wx
