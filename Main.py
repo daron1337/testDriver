@@ -3,12 +3,8 @@
 ## Program:   testDriver
 ## Module:    Main.py
 ## Language:  Python
-## Date:      $Date: 2011/05/12 14:42:28 $
+## Date:      $Date: 2011/04/13 14:23:04 $
 ## Version:   $Revision: 0.1 $
-
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
 
 from TestCases import TestCases
 from TestDriver import TestDriver
@@ -25,11 +21,12 @@ import sys, getopt
 #===============================================================================
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:], "a:x:c:p:n:l:t:", ["app=", "xml=", "case=", "plan=", "name=", "caseList=", "timeOut="]) 
+    opts, args = getopt.getopt(sys.argv[1:], "a:x:c:p:n:l:t:i:", ["app=", "xml=", "case=", "plan=", "name=", "caseList=", "timeOut=", "input="]) 
 except getopt.GetoptError: 
     print "Error"                                  
     sys.exit(2) 
 
+inputFilesDirName = 'input files'
 project = TestCases()
 testDriver = TestDriver()
 testResults = TestResults()
@@ -63,9 +60,13 @@ for opt, arg in opts:
     if opt in ("-t", "--timeOut"):
         timeOut = arg
         testDriver.SetTimeOut(timeOut)
+    if opt in ("-i", "--input"):
+        inputFilesDirName = arg
         
+testDriver.SetTmpDirectory(inputFilesDirName)       
 testDriver.RunTestCase(appPath)
 testResults.SetTestingResults(testDriver)
 testResults.RetrieveResults()
 testResults.WriteXml()
 testResults.WriteTxt()
+testDriver.CleanTmpDirectory()

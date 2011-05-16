@@ -1,14 +1,12 @@
 #!/usr/bin/env python
+import shutil
+import distutils
 
 ## Program:   testDriver
 ## Module:    testDriver.py
 ## Language:  Python
-## Date:      $Date: 2011/05/12 14:41:28 $
+## Date:      $Date: 2011/04/13 14:11:27 $
 ## Version:   $Revision: 0.1 $
-
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
 
 try:
     import wx
@@ -17,6 +15,7 @@ except:
 from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time
+import os
 import shlex
 from asyncproc import Process
 
@@ -46,7 +45,21 @@ class TestDriver(object):
         self.testPlan = {} #test_plan_name:testCasesIds
         self.testingCases = []
         self.timeOut = 900
+        self.tmpDir = None
         
+    def SetTmpDirectory(self, inputFilesDirName):
+        '''
+        Setting temporary directory for I/O files
+        '''
+        self.tmpDir = "projects/%s/tmp/" % (self.testCases.projectName)
+        inputFilesDir = "projects/%s/%s/" % (self.testCases.projectName,inputFilesDirName)
+        shutil.copytree(inputFilesDir, self.tmpDir)
+    
+    def CleanTmpDirectory(self):
+        '''
+        '''
+        shutil.rmtree(self.tmpDir)
+    
     def SetTestCases(self, testCases):
         '''
         Setting test cases from testCase xml.
