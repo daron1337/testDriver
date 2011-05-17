@@ -52,8 +52,12 @@ class TestDriver(object):
         '''
         self.tmpDir = "projects/%s/tmp/" % (self.testCases.projectName)
         inputFilesDir = "projects/%s/%s/" % (self.testCases.projectName,inputFilesDirName)
-        shutil.copytree(inputFilesDir, self.tmpDir)
-    
+        try:
+            shutil.copytree(inputFilesDir, self.tmpDir)
+        except OSError:
+            shutil.rmtree(self.tmpDir)
+            shutil.copytree(inputFilesDir, self.tmpDir)
+            
     def CleanTmpDirectory(self):
         '''
         '''
