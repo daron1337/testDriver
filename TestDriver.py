@@ -15,8 +15,7 @@ except:
 from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time
-import os
-import shlex
+import sys, shlex
 from asyncproc import Process
 
 class TestDriver(object):
@@ -146,7 +145,8 @@ class TestDriver(object):
         args = shlex.split(appArgs)
         app = Process(args)
         try:
-            for actionId, action in sorted(testCase.actions.iteritems()):
+            sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
+            for actionId, action in sortedCases:
                 if testFailed == True:
                     break
                 startTime = time()
@@ -206,7 +206,8 @@ class TestDriver(object):
         testFailed = False
         testActions = {}
         try:
-            for actionId, action in sorted(testCase.actions.iteritems()):
+            sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
+            for actionId, action in sortedCases:
                 if testFailed == True:
                     break
                 print "Running Action %s, Press CTRL-C to skip test" % actionId    
@@ -254,10 +255,10 @@ class TestDriver(object):
         yes or no to an expected statement.
         If at least one action fails (a negative answer from the user), the test will fail.
         '''    
-        #TODO: screenshot!
         testFailed = False
         testActions = {}
-        for actionId, action in sorted(testCase.actions.iteritems()):
+        sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
+        for actionId, action in sortedCases:
             if testFailed == True:
                 break      
             testActions[actionId] = None
@@ -317,7 +318,22 @@ class TestDriver(object):
         filename = folder + fileBasename + fileExt
         bitmap.SaveFile( filename, wx.BITMAP_TYPE_PNG )
 
+def asint(s):
+    '''
+    This function convert a sting into integer.
+    It's used for sorting a dictionary with key 
+    represented with string numbers.
+    '''
+    try: 
+        return int(s), ''
+    except ValueError:
+        return sys.maxint, s
+
 def indent(elem, level=0):
+    '''
+    This functions is used for xml write indentation if
+    lxml package is not provided.
+    '''
     i = "\n" + level*"  "
     if len(elem):
         if not elem.text or not elem.text.strip():
