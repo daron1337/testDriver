@@ -1,12 +1,14 @@
 #!/usr/bin/env python
-import shutil
-import distutils
 
 ## Program:   testDriver
 ## Module:    testDriver.py
 ## Language:  Python
-## Date:      $Date: 2011/04/13 14:11:27 $
-## Version:   $Revision: 0.1 $
+## Date:      $Date: 2011/05/19 09:43:27 $
+## Version:   $Revision: 0.1.2 $
+
+##      This software is distributed WITHOUT ANY WARRANTY; without even 
+##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##      PURPOSE.  See the above copyright notices for more information.
 
 try:
     import wx
@@ -15,7 +17,7 @@ except:
 from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time
-import sys, shlex
+import sys, shlex, shutil
 from asyncproc import Process
 
 class TestDriver(object):
@@ -24,6 +26,8 @@ class TestDriver(object):
     The application to be tested is launched using
     asynchronous process.
     This class has the following methods:
+    SetTmpDirectory: a method for setting local environment for I/O files
+    CleaningTmpDirectory: a method for cleaning local environment for I/O files
     SetTestCases: a method for setting test cases.
     ChooseTestCase: a method for choosing specific test case.
     SetTestPlan: a method for creating a new test plan and 
@@ -34,6 +38,7 @@ class TestDriver(object):
     RunTestCaseType1: a method for running type1 tests.
     RunTestCaseType2: a method for running type2 tests.
     RunTestCaseType3: a method for running type3 tests.
+    TakeScreenshot: a method for supporting screenshot feature
     '''
 
     def __init__(self):
@@ -60,6 +65,7 @@ class TestDriver(object):
             
     def CleanTmpDirectory(self):
         '''
+        Cleaning temporary directory for I/O files
         '''
         shutil.rmtree(self.tmpDir)
     

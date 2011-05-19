@@ -3,21 +3,24 @@
 ## Program:   testDriver
 ## Module:    TestResults.py
 ## Language:  Python
-## Date:      $Date: 2011/05/12 14:42:02 $
-## Version:   $Revision: 0.1 $
+## Date:      $Date: 2011/05/19 09:45:02 $
+## Version:   $Revision: 0.1.2 $
 
 ##      This software is distributed WITHOUT ANY WARRANTY; without even 
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
 ##      PURPOSE.  See the above copyright notices for more information.
 
 from xml.etree import ElementTree as etree
-from TestDriver import TestDriver
 
 class TestResults(object):
     '''
-    colleziono i risultati dei test
-    in un file xml e in un file di testo
-    
+    TestResults class writes testing results in a .xml file
+    and in a .txt file.
+    This class has the following methods:
+    SetTestingResults: a method for setting results from testDriver class
+    RetrieveResults: a method for retrieving testResults
+    WriteTxt: a method for writing results in a .txt file
+    WriteXml: a method for writing results in a .xml file
     '''
 
     def __init__(self):

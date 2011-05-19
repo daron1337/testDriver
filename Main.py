@@ -3,8 +3,12 @@
 ## Program:   testDriver
 ## Module:    Main.py
 ## Language:  Python
-## Date:      $Date: 2011/04/13 14:23:04 $
-## Version:   $Revision: 0.1 $
+## Date:      $Date: 2011/05/19 09:47:04 $
+## Version:   $Revision: 0.1.2 $
+
+##      This software is distributed WITHOUT ANY WARRANTY; without even 
+##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##      PURPOSE.  See the above copyright notices for more information.
 
 from TestCases import TestCases
 from TestDriver import TestDriver
