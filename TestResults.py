@@ -11,6 +11,7 @@
 ##      PURPOSE.  See the above copyright notices for more information.
 
 from xml.etree import ElementTree as etree
+from TestDriverDbApi import *
 
 class TestResults(object):
     '''
@@ -110,7 +111,7 @@ class TestResults(object):
                                 result.text = str(c.status)
         indent(root)                
         results.write (filepath, encoding='iso-8859-1')
-
+        
 def indent(elem, level=0):
     i = "\n" + level*"  "
     if len(elem):

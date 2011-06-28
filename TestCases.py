@@ -44,7 +44,7 @@ class TestCases(object):
         self.projectName = project.attrib['name']
         self.projectVersion = project.attrib['version']   
         for tc in project.findall(".//testCase"):
-            case = TestCase(tc.attrib['id'],tc.attrib['sd'],tc.attrib['type'])
+            case = TestCase(tc.attrib['id'],tc.attrib['sd'],tc.attrib['type'],tc.attrib['name'])
             for descr in tc.findall(".//description"):
                 case.description = descr.text
             for req in tc.findall(".//requirement"):
@@ -89,13 +89,14 @@ class TestCase(object):
     responses: dictionary of responses to be expected for each action.
     '''
     
-    def __init__(self, id, sd, type):
+    def __init__(self, id, sd, type, name):
         '''
         Constructor
         '''
         self.id = id
         self.sd = sd
         self.type = type
+        self.name = name
         self.requirements = []
         self.description = None
         self.actions = {} # actions dictionary, id:action

@@ -40,6 +40,7 @@
 		<xsd:attribute name="id" type="xsd:integer" use="required"/>
 		<xsd:attribute name="sd" type="xsd:integer" use="required"/>
 		<xsd:attribute name="type" type="caseTypeType" use="required"/>
+		<xsd:attribute name="name" type="xsd:string" use="required"/>
 	</xsd:complexType>
 	
 	<xsd:simpleType name="caseTypeType">

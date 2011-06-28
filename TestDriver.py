@@ -20,6 +20,7 @@ from time import time
 import sys, shlex, shutil
 from asyncproc import Process
 
+
 class TestDriver(object):
     '''
     TestDriver class runs test cases of different types.
@@ -50,6 +51,13 @@ class TestDriver(object):
         self.testingCases = []
         self.timeOut = 900
         self.tmpDir = None
+        self.dbApi = None
+        self.testRail = False
+        
+    def SetDbApi(self, testDriverDbApi):
+        '''
+        '''
+        self.dbApi = testDriverDbApi
         
     def SetTmpDirectory(self, inputFilesDirName):
         '''
@@ -138,7 +146,7 @@ class TestDriver(object):
             if testCase.type == str(2):
                 self.RunTestCaseType2(appPath,testCase)
             if testCase.type == str(3):
-                self.RunTestCaseType3(appPath,testCase)
+                self.RunTestCaseType3(appPath,testCase) 
     
     def RunTestCaseType1(self, appPath,testCase):
         '''
@@ -304,7 +312,18 @@ class TestDriver(object):
             print "TEST %s PASSED" % testCase.id
             self.TakeScreenshot(testCase.id)
             testCase.status = 'PASSED'
-            
+    
+    def testDriverToTestRail(self):
+        '''
+        SOLO SE OPZIONE ATTIVA
+        ''' 
+        if self.testRail:
+            for testCase in self.testingCases:
+                self.dbApi.InsertIntoDb(testCase.name)
+        else:
+            pass
+        
+    
     def TakeScreenshot(self, testCaseId, actionId=None):
         '''
         This method takes a screenshot.

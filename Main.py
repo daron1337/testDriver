@@ -13,6 +13,7 @@
 from TestCases import TestCases
 from TestDriver import TestDriver
 from TestResults import TestResults
+from TestDriverDbApi import TestDriverDbApi
 import sys, getopt
 
 #===============================================================================
@@ -25,7 +26,7 @@ import sys, getopt
 #===============================================================================
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:], "a:x:c:p:n:l:t:i:", ["app=", "xml=", "case=", "plan=", "name=", "caseList=", "timeOut=", "input="]) 
+    opts, args = getopt.getopt(sys.argv[1:], "a:x:c:p:n:l:t:i:d:", ["app=", "xml=", "case=", "plan=", "name=", "caseList=", "timeOut=", "input=", "testrail="]) 
 except getopt.GetoptError: 
     print "Error"                                  
     sys.exit(2) 
@@ -66,6 +67,15 @@ for opt, arg in opts:
         testDriver.SetTimeOut(timeOut)
     if opt in ("-i", "--input"):
         inputFilesDirName = arg
+    if opt in ("-d", "--testrail"):
+        testDriver.testRail = True
+        runName = arg
+        testDriverDbApi = TestDriverDbApi()
+        testDriverDbApi.ConnectDb('127.0.0.1','testrail','orobix','testrail')
+        #testDriverDbApi.ConnectDb('localhost','root','ciao','testrail')
+        testDriverDbApi.SetTestCases(project)
+        testDriverDbApi.SetRunName(runName)
+        testDriver.SetDbApi(testDriverDbApi)
         
 testDriver.SetTmpDirectory(inputFilesDirName)       
 testDriver.RunTestCase(appPath)
@@ -74,3 +84,4 @@ testResults.RetrieveResults()
 testResults.WriteXml()
 testResults.WriteTxt()
 testDriver.CleanTmpDirectory()
+testDriver.testDriverToTestRail()
