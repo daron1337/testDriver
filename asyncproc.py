@@ -232,22 +232,29 @@ class Process(object):
 	      If the process was started with stdin not set to PIPE, the
 	   first level (closing stdin) is skipped.
 	"""
-	if self.__process.stdin:
-	    # This is rather meaningless when stdin != PIPE.
-	    self.closeinput()
-	    try:
-		return with_timeout(graceperiod, self.wait)
-	    except Timeout:
-		pass
-
-	self.kill(signal.SIGTERM)
-	try:
-	    return with_timeout(graceperiod, self.wait)
-	except Timeout:
-	    pass
-
-	self.kill(signal.SIGKILL)
-	return self.wait()
+        
+        
+    	if self.__process.stdin:
+            
+    	    # This is rather meaningless when stdin != PIPE.
+    	    self.closeinput()
+    	    #try:
+            #    print "nel try"
+            #    return with_timeout(graceperiod, self.wait)
+    	    #except Timeout:
+            #    print "timeout"
+    		    
+        
+    	self.kill(signal.SIGTERM)
+    	#try:
+    	#    return with_timeout(graceperiod, self.wait)
+    	#except Timeout:
+    	#    pass
+        
+    	self.kill(signal.SIGKILL)
+        #print "wait"
+        #print self.wait()
+    	#return self.wait()
 
     def __reader(self, collector, source):
 	"""Read data from source until EOF, adding it to collector.
