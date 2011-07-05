@@ -17,7 +17,7 @@ except:
 from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time
-import sys, shlex, shutil
+import sys, shlex, shutil, os
 from asyncproc import Process
 
 
@@ -65,6 +65,10 @@ class TestDriver(object):
         '''
         self.tmpDir = "projects/%s/tmp/" % (self.testCases.projectName)
         inputFilesDir = "projects/%s/%s/" % (self.testCases.projectName,inputFilesDirName)
+        if not os.path.exists (self.tmpDir):
+            os.mkdir(self.tmpDir)
+        if not os.path.exists (inputFilesDir):
+            os.mkdir(inputFilesDir)
         try:
             shutil.copytree(inputFilesDir, self.tmpDir)
         except OSError:
@@ -100,6 +104,8 @@ class TestDriver(object):
         for testId in self.testPlan[planName]:
             self.testingCases.append(self.testCases.Cases[testId])              
         filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)
+        if not os.path.exists ("projects/%s/plans/" % self.testCases.projectName):
+            os.mkdir("projects/%s/plans/" % self.testCases.projectName)
         root = etree.Element("Project", id=self.testCases.projectId, name=self.testCases.projectName, version=self.testCases.projectVersion)
         plan = etree.ElementTree(root)
         testPlan = etree.SubElement(root,"testPlan", name=planName)
@@ -323,7 +329,6 @@ class TestDriver(object):
         else:
             pass
         
-    
     def TakeScreenshot(self, testCaseId, actionId=None):
         '''
         This method takes a screenshot.

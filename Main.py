@@ -71,8 +71,7 @@ for opt, arg in opts:
         testDriver.testRail = True
         runName = arg
         testDriverDbApi = TestDriverDbApi()
-        testDriverDbApi.ConnectDb('127.0.0.1','testrail','orobix','testrail')
-        #testDriverDbApi.ConnectDb('localhost','root','ciao','testrail')
+        testDriverDbApi.ConnectDb('127.0.0.1','userName','password','dbName')
         testDriverDbApi.SetTestCases(project)
         testDriverDbApi.SetRunName(runName)
         testDriver.SetDbApi(testDriverDbApi)
