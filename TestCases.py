@@ -51,6 +51,8 @@ class TestCases(object):
                 case.requirements.append(req.text)
             for precond in tc.findall(".//precondition"):
                 case.preconditions.append(precond.text)
+            for acts in tc.findall(".//actions"):
+                case.actionsType = acts.attrib['type']
             for act in tc.findall(".//action"):
                 actionElement = Action(act.attrib['id'],act.text)
                 case.actions[actionElement.id]= actionElement
@@ -105,6 +107,7 @@ class TestCase(object):
         self.actions = {} # actions dictionary, id:action
         self.responses = {} # responses dictionary, id:action
         self.status = None
+        self.actionsType = None
         
 
 class Action(object):

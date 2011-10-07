@@ -139,7 +139,7 @@ class TestDriver(object):
         '''
         Setting timeout value (in seconds)
         '''
-        self.timeOut = float(timeOut) #timeout in seconds [s]
+        self.timeOut = float(timeOut) #timeout in seconds[s]
 
     def RunTestCase(self, appPath):
         '''

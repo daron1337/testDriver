@@ -32,6 +32,7 @@ class Tester(object):
         
     def Ready(self):
         '''
+        Sending ready message
         '''
         print "Ready"
         

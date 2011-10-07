@@ -27,7 +27,6 @@ project = TestCases()
 testDriver = TestDriver()
 testResults = TestResults()
 
-
 for opt, arg in opts:
     if opt in ("-a", "--app"):
         appPath = arg 

@@ -11,7 +11,6 @@
 ##      PURPOSE.  See the above copyright notices for more information.
 
 from xml.etree import ElementTree as etree
-from TestDriverDbApi import *
 
 class TestResults(object):
     '''
@@ -23,7 +22,6 @@ class TestResults(object):
     WriteTxt: a method for writing results in a .txt file
     WriteXml: a method for writing results in a .xml file
     '''
-
     def __init__(self):
         '''
         Constructor
@@ -125,4 +123,4 @@ def indent(elem, level=0):
             elem.tail = i
     else:
         if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i   
+            elem.tail = i     
