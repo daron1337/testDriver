@@ -71,7 +71,15 @@
 		<xsd:sequence>
 			<xsd:element maxOccurs="unbounded" minOccurs="1" name="action" type="actionType"/>
 		</xsd:sequence>
+		<xsd:attribute name="type" type="actionsTypeType" use="required"/>
 	</xsd:complexType>
+	
+   <xsd:simpleType name="actionsTypeType">
+		<xsd:restriction base="xsd:token">
+			<xsd:enumeration value="flag"/>
+			<xsd:enumeration value="command"/>
+		</xsd:restriction>
+	</xsd:simpleType>
  
  <!--Action type-->
 	<xsd:complexType name="actionType">
