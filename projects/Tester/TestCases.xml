@@ -2,13 +2,13 @@
 <!--Test Cases-->
 <Project id="00001" name="Tester" version="0.1">
   <testCases>
-   <testCase id="1" sd="1" type="1">
+   <testCase id="1" sd="1" type="1" name="action_button">
    	 <description>This test case is used for testing action GUI button.</description>
      <requirements>
        <requirement>REQ-010101</requirement>
        <requirement>REQ-010102</requirement>
      </requirements> 
-     <actions>
+     <actions type="flag">
        <action id="1">Click on action button</action>
        <action id="2">Click on action button</action>
      </actions>
@@ -17,12 +17,12 @@
        <response id="2">@Log:Tester doAction message=Action NO</response>
      </responses>
    </testCase>
-   <testCase id="2" sd="2" type="2">
+   <testCase id="2" sd="2" type="2" name="action_button_2">
      <description>This test case is used for testing functionality related to action GUI button</description>
      <requirements>
        <requirement>REQ-010103</requirement>
      </requirements> 
-     <actions>
+     <actions type="flag">
        <action id="1">-i</action>
        <action id="2">-i</action>
        <action id="3">-i</action>
@@ -35,12 +35,12 @@
        <response id="4">@Log:Tester doAction message=Action OK</response>
      </responses>
    </testCase>
-   <testCase id="3" sd="3" type="3">
+   <testCase id="3" sd="3" type="3" name="action_button_disabled">
      <description>This test case is used for testing possibility to having action button disabled</description>
      <requirements>
        <requirement>REQ-020101</requirement>
      </requirements> 
-     <actions>
+     <actions type="command">
        <action id="1">-d</action>
        <action id="2">-d</action>
      </actions>

@@ -19,6 +19,7 @@ from string import split, lower
 from time import time
 import sys, shlex, shutil, os
 from asyncproc import Process
+from subprocess import Popen
 
 
 class TestDriver(object):
@@ -150,9 +151,15 @@ class TestDriver(object):
             if testCase.type == str(1):
                 self.RunTestCaseType1(appPath,testCase)
             if testCase.type == str(2):
-                self.RunTestCaseType2(appPath,testCase)
+                if testCase.actionsType == 'flag':
+                    self.RunTestCaseType2_flag(appPath,testCase)
+                if testCase.actionsType == 'command':
+                    self.RunTestCaseType2_command(appPath,testCase)
             if testCase.type == str(3):
-                self.RunTestCaseType3(appPath,testCase) 
+                if testCase.actionsType == 'flag':
+                    self.RunTestCaseType3_flag(appPath,testCase) 
+                if testCase.actionsType == 'command':
+                    self.RunTestCaseType3_command(appPath,testCase)
     
     def RunTestCaseType1(self, appPath,testCase):
         '''
@@ -218,9 +225,9 @@ class TestDriver(object):
             testCase.status = 'PASSED'
             app.terminate()    
     
-    def RunTestCaseType2(self, appPath, testCase):
+    def RunTestCaseType2_flag(self, appPath, testCase):
         '''
-        This method runs type2 tests. This kind of test takes as input a list
+        This method runs type2 tests with flag type actions. This kind of test takes as input a list
         of arguments (action) and search for a log in the standard output of the
         application to be tested. User can skip any test actions using a 
         Keyboard interrupt (CTRL+C)
@@ -271,10 +278,76 @@ class TestDriver(object):
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
             testCase.status = 'PASSED'
-
-    def RunTestCaseType3(self, appPath, testCase):
+            
+    def RunTestCaseType2_command(self, appPath, testCase):
         '''
-        This method runs type3 tests. This kind of test takes as input a list
+        This method runs type2 tests with command type actions. This kind of test takes as input a list
+        of arguments (action) and search for a log in the standard output of the
+        application to be tested. User can skip any test actions using a 
+        Keyboard interrupt (CTRL+C)
+        If at least one action fails to retrieve its log, the test will fail.
+        A timeout has to be setted before (default value is 900sec)
+        '''       
+        testFailed = False
+        testActions = {}
+        print "Launching main application."
+        appArgs = appPath
+        args = shlex.split(appArgs)
+        app = Process(args)
+        outAndErr = app.readboth()
+        for outReady in outAndErr:
+            while outReady.find('Ready') == -1:
+                pass    
+        print "Main application is ready, starting test actions"
+        try:
+            sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
+            for actionId, action in sortedCases:
+                if testFailed == True:
+                    break
+                startTime = time()
+            
+                actionRunning = Popen(action.action)
+                
+                testActions[actionId] = None
+                print "Running Action %s, Press CTRL-C to skip test" % actionId    
+                          
+                while testActions[actionId] == None:   
+                    for out in outAndErr:
+                        for responseId, response in sorted(testCase.responses.iteritems()):
+                            if responseId == actionId:
+                                log = response.response
+                                if out.find(log) != -1:
+                                    print "TestCase %s Action %s Passed" % (testCase.id, actionId) 
+                                    testActions[actionId] = True
+                                    actionRunning.kill()
+                                    
+                                if out.find(log) == -1 and time()-startTime>self.timeOut:
+                                    print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
+                                    actionRunning.kill()
+                                    app.terminate()
+                                    testActions[actionId] = False
+                                    testFailed = True 
+                                                     
+        except KeyboardInterrupt:
+            print "\nTestCase %s Action %s Failed" % (testCase.id, actionId)
+            actionRunning.kill()
+            app.terminate()
+            testActions[actionId] = False
+            testFailed = True
+
+        for id, t in testActions.iteritems():
+            if t == False:
+                testFailed = True
+                print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+                testCase.status = 'FAILED (%s)' % id 
+
+        if testFailed == False:
+            print "TEST %s PASSED" % testCase.id
+            testCase.status = 'PASSED'
+
+    def RunTestCaseType3_flag(self, appPath, testCase):
+        '''
+        This method runs type3 tests with flag type actions. This kind of test takes as input a list
         of arguments (action) and waits for user interaction. User has to answer
         yes or no to an expected statement.
         If at least one action fails (a negative answer from the user), the test will fail.
@@ -301,6 +374,66 @@ class TestDriver(object):
                             app.terminate()
                             testActions[actionId] = True
                         if user_answer.find('n') != -1:
+                            app.terminate()
+                            testActions[actionId] = False
+                            testFailed = True
+                        if user_answer.find('n') == -1 and user_answer.find('y') == -1:
+                            pass
+                        
+        for id, t in testActions.iteritems():
+            if t == False:
+                testFailed = True
+                print "TEST %s FAILED, (action %s)" % (testCase.id, id)
+                self.TakeScreenshot(testCase.id, id)
+                testCase.status = 'FAILED (%s)' % id 
+
+        if testFailed == False:
+            print "TEST %s PASSED" % testCase.id
+            self.TakeScreenshot(testCase.id)
+            testCase.status = 'PASSED'
+            
+    def RunTestCaseType3_command(self, appPath, testCase):
+        '''
+        This method runs type3 tests with c type actions. This kind of test takes as input a list
+        of arguments (action) and waits for user interaction. User has to answer
+        yes or no to an expected statement.
+        If at least one action fails (a negative answer from the user), the test will fail.
+        '''    
+        testFailed = False
+        testActions = {}
+        print "Launching main application..."
+        appArgs = appPath
+        args = shlex.split(appArgs)
+        app = Process(args)
+        outAndErr = app.readboth()
+        for outReady in outAndErr:
+            while outReady.find('Ready') == -1:
+                pass    
+        print "Main application is ready, starting test actions"
+        
+        sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
+        for actionId, action in sortedCases:
+            if testFailed == True:
+                break
+
+            actionRunning = Popen(action.action)
+            
+            testActions[actionId] = None
+            print "Running Action %s, Press CTRL-C to skip test" % actionId    
+                      
+            while testActions[actionId] == None:   
+                for responseId, response in sorted(testCase.responses.iteritems()):
+                    if responseId == actionId:
+                        print "\n", response.response
+                        print "YES/NO"  #YES, test passato. No, test Fallito
+                        user_answer = lower(raw_input())
+                        if user_answer.find('y') != -1:
+                            print "TestCase %s Action %s Passed\n" % (testCase.id, actionId)
+                            self.TakeScreenshot(testCase.id, actionId)
+                            actionRunning.kill()
+                            testActions[actionId] = True
+                        if user_answer.find('n') != -1:
+                            actionRunning.kill()
                             app.terminate()
                             testActions[actionId] = False
                             testFailed = True

@@ -28,7 +28,13 @@ class Tester(object):
         if doAction == True:
             self.doAction()
         
-    
+        self.Ready()
+        
+    def Ready(self):
+        '''
+        '''
+        print "Ready"
+        
     def doAction(self):
         '''
         '''
