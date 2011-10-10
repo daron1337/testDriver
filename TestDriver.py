@@ -20,7 +20,7 @@ from time import time
 import sys, shlex, shutil, os
 from asyncproc import Process
 from subprocess import Popen
-
+from numpy.lib.function_base import linspace
 
 class TestDriver(object):
     '''
@@ -101,11 +101,28 @@ class TestDriver(object):
         Saving plan in a specific xml file.
         '''
         self.testPlan[planName] = []
-        print testCasesIds
-        testCasesIds=split(testCasesIds,",")
+        
+        if testCasesIds.find(':') != -1:
+            testCasesIds=split(testCasesIds,":")
+            caseInterval = linspace(int(testCasesIds[0]),int(testCasesIds[1]),int(testCasesIds[1])-(int(testCasesIds[0]))+1)
+            for x in caseInterval:
+                if str(int(x)) not in testCasesIds:
+                    testCasesIds.append(str(int(x)))
+            testCasesIds.sort()
+    
+        elif testCasesIds.find(',') != -1:
+            testCasesIds=split(testCasesIds,",")
+        
+        else:
+            sys.exit("Error, please set a list of cases using an interval (case1_Id:caseN_Id) or a set of cases (case1_Id,case2_Id,case3_Id,case6_Id,case8_Id)")
+            
         self.testPlan[planName][:] = testCasesIds[:]     
         for testId in self.testPlan[planName]:
-            self.testingCases.append(self.testCases.Cases[testId])              
+            try:
+                self.testingCases.append(self.testCases.Cases[testId])  
+            except KeyError:
+                error = "Error, case %s is not defined into testCases xml file." % testId
+                sys.exit(error)       
         filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)
         if not os.path.exists ("projects/%s/plans/" % self.testCases.projectName):
             os.mkdir("projects/%s/plans/" % self.testCases.projectName)
