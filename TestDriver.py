@@ -327,13 +327,15 @@ class TestDriver(object):
                 if testFailed == True:
                     break
                 startTime = time()
-            
-                actionRunning = Popen(action.action)
+                
+                actionArgs = shlex.split(action.action)
+                actionRunning = Popen(actionArgs)
                 
                 testActions[actionId] = None
                 print "Running Action %s, Press CTRL-C to skip test" % actionId    
                           
-                while testActions[actionId] == None:   
+                while testActions[actionId] == None:
+                    outAndErr = app.readboth() 
                     for out in outAndErr:
                         for responseId, response in sorted(testCase.responses.iteritems()):
                             if responseId == actionId:
@@ -440,7 +442,8 @@ class TestDriver(object):
             if testFailed == True:
                 break
 
-            actionRunning = Popen(action.action)
+            actionArgs = shlex.split(action.action)
+            actionRunning = Popen(actionArgs)
             
             testActions[actionId] = None
             print "Running Action %s, Press CTRL-C to skip test" % actionId    
