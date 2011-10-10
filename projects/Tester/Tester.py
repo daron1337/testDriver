@@ -27,14 +27,14 @@ class Tester(object):
         
         if doAction == True:
             self.doAction()
-        
+            
         self.Ready()
         
     def Ready(self):
         '''
         Sending ready message
         '''
-        print "Ready"
+        print "ReadyForTestDriver"
         
     def doAction(self):
         '''
@@ -60,6 +60,7 @@ for opt, arg in opts:
         message = arg
     if opt in ("-d", "--disabled"):
         disabled = True
+
 root = Tk()
 
 app = Tester(root, doAction, disabled)

@@ -3,8 +3,8 @@
 ## Program:   testDriver
 ## Module:    testDriver.py
 ## Language:  Python
-## Date:      $Date: 2011/05/19 09:43:27 $
-## Version:   $Revision: 0.1.2 $
+## Date:      $Date: 2011/10/10 10:26:13 $
+## Version:   $Revision: 0.1.3 $
 
 ##      This software is distributed WITHOUT ANY WARRANTY; without even 
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
@@ -51,6 +51,7 @@ class TestDriver(object):
         self.testPlan = {} #test_plan_name:testCasesIds
         self.testingCases = []
         self.timeOut = 900
+        self.readyLog = None
         self.tmpDir = None
         self.dbApi = None
         self.testRail = False
@@ -100,6 +101,7 @@ class TestDriver(object):
         Saving plan in a specific xml file.
         '''
         self.testPlan[planName] = []
+        print testCasesIds
         testCasesIds=split(testCasesIds,",")
         self.testPlan[planName][:] = testCasesIds[:]     
         for testId in self.testPlan[planName]:
@@ -293,12 +295,15 @@ class TestDriver(object):
         print "Launching main application."
         appArgs = appPath
         args = shlex.split(appArgs)
+        ready = False
         app = Process(args)
-        outAndErr = app.readboth()
-        for outReady in outAndErr:
-            while outReady.find('Ready') == -1:
-                pass    
-        print "Main application is ready, starting test actions"
+        while ready == False:
+            outAndErr = app.readboth()
+            for out in outAndErr:
+                if out.find(self.readyLog) != -1:
+                    print "Main application is ready, starting test actions"
+                    ready = True
+            
         try:
             sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
             for actionId, action in sortedCases:
@@ -401,15 +406,17 @@ class TestDriver(object):
         '''    
         testFailed = False
         testActions = {}
-        print "Launching main application..."
+        print "Launching main application."
         appArgs = appPath
         args = shlex.split(appArgs)
+        ready = False
         app = Process(args)
-        outAndErr = app.readboth()
-        for outReady in outAndErr:
-            while outReady.find('Ready') == -1:
-                pass    
-        print "Main application is ready, starting test actions"
+        while ready == False:
+            outAndErr = app.readboth()
+            for out in outAndErr:
+                if out.find(self.readyLog) != -1:
+                    print "Main application is ready, starting test actions"
+                    ready = True
         
         sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
         for actionId, action in sortedCases:

@@ -22,8 +22,8 @@
      <requirements>
        <requirement>REQ-010103</requirement>
      </requirements> 
-     <actions type="flag">
-       <action id="1">-i</action>
+     <actions type="command">
+       <action id="1">/Applications/Chess.app/Contents/MacOS/Chess</action>
        <action id="2">-i</action>
        <action id="3">-i</action>
        <action id="4">-i</action>
