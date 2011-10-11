@@ -368,6 +368,7 @@ class TestDriver(object):
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
             testCase.status = 'PASSED'
+            app.terminate()
 
     def RunTestCaseType3_flag(self, appPath, testCase):
         '''
@@ -478,6 +479,7 @@ class TestDriver(object):
             print "TEST %s PASSED" % testCase.id
             self.TakeScreenshot(testCase.id)
             testCase.status = 'PASSED'
+            app.terminate()
     
     def testDriverToTestRail(self):
         '''
