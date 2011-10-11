@@ -21,6 +21,7 @@ import sys, shlex, shutil, os
 from asyncproc import Process
 from subprocess import Popen
 from numpy.lib.function_base import linspace
+import signal
 
 class TestDriver(object):
     '''
@@ -193,7 +194,10 @@ class TestDriver(object):
         testActions = {}
         appArgs = appPath
         args = shlex.split(appArgs)
-        app = Process(args)
+        try:
+            app = Process(args)
+        except OSError:
+            sys.exit("Error, please specify a valid path for the tested application.")
         try:
             sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
             for actionId, action in sortedCases:
@@ -264,7 +268,10 @@ class TestDriver(object):
                 testActions[actionId] = None
                 appArgs = appPath+' '+action.action
                 args = shlex.split(appArgs)          
-                app = Process(args)
+                try:
+                    app = Process(args)
+                except OSError:
+                    sys.exit("Error, please specify a valid path for the tested application.")
                 startTime = time()              
                 while testActions[actionId] == None:   
                     outAndErr = app.readboth()
@@ -313,7 +320,11 @@ class TestDriver(object):
         appArgs = appPath
         args = shlex.split(appArgs)
         ready = False
-        app = Process(args)
+        try:
+            app = Process(args)
+        except OSError:
+            sys.exit("Error, please specify a valid path for the tested application.")
+        
         while ready == False:
             outAndErr = app.readboth()
             for out in outAndErr:
@@ -329,7 +340,12 @@ class TestDriver(object):
                 startTime = time()
                 
                 actionArgs = shlex.split(action.action)
-                actionRunning = Popen(actionArgs)
+                try:
+                    actionRunning = Popen(actionArgs)
+                except OSError:
+                    app.terminate()
+                    errorAction = "Error, please specify a valid command for action %s." % actionId
+                    sys.exit(errorAction)
                 
                 testActions[actionId] = None
                 print "Running Action %s, Press CTRL-C to skip test" % actionId    
@@ -369,7 +385,7 @@ class TestDriver(object):
             print "TEST %s PASSED" % testCase.id
             testCase.status = 'PASSED'
             app.terminate()
-
+            
     def RunTestCaseType3_flag(self, appPath, testCase):
         '''
         This method runs type3 tests with flag type actions. This kind of test takes as input a list
@@ -386,7 +402,10 @@ class TestDriver(object):
             testActions[actionId] = None
             appArgs = appPath+' '+action.action
             args = shlex.split(appArgs)
-            app = Process(args)
+            try:
+                app = Process(args)
+            except OSError:
+                sys.exit("Error, please specify a valid path for the tested application.")
             while testActions[actionId] == None:
                 for responseId, response in sorted(testCase.responses.iteritems()):
                     if responseId == actionId:
@@ -430,7 +449,10 @@ class TestDriver(object):
         appArgs = appPath
         args = shlex.split(appArgs)
         ready = False
-        app = Process(args)
+        try:
+            app = Process(args)
+        except OSError:
+            sys.exit("Error, please specify a valid path for the tested application.")
         while ready == False:
             outAndErr = app.readboth()
             for out in outAndErr:
@@ -444,7 +466,12 @@ class TestDriver(object):
                 break
 
             actionArgs = shlex.split(action.action)
-            actionRunning = Popen(actionArgs)
+            try:
+                actionRunning = Popen(actionArgs)
+            except OSError:
+                app.terminate()
+                errorAction = "Error, please specify a valid command for action %s." % actionId
+                sys.exit(errorAction)
             
             testActions[actionId] = None
             print "Running Action %s, Press CTRL-C to skip test" % actionId    
@@ -453,7 +480,7 @@ class TestDriver(object):
                 for responseId, response in sorted(testCase.responses.iteritems()):
                     if responseId == actionId:
                         print "\n", response.response
-                        print "YES/NO"  #YES, test passato. No, test Fallito
+                        print "YES/NO"  #YES, test passed. No, test failed
                         user_answer = lower(raw_input())
                         if user_answer.find('y') != -1:
                             print "TestCase %s Action %s Passed\n" % (testCase.id, actionId)
