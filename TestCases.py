@@ -11,6 +11,7 @@
 ##      PURPOSE.  See the above copyright notices for more information.
 
 from xml.etree import ElementTree as etree
+import sys
 
 class TestCases(object):
     '''
@@ -52,7 +53,13 @@ class TestCases(object):
             for precond in tc.findall(".//precondition"):
                 case.preconditions.append(precond.text)
             for acts in tc.findall(".//actions"):
-                case.actionsType = acts.attrib['type']
+                try:
+                    case.actionsType = acts.attrib['type']
+                except KeyError:
+                    if tc.attrib['type'] == '1':
+                        pass
+                    else:
+                        sys.exit("Invalid xml file, please specify actions type if testCase is type 2 or type 3.")
             for act in tc.findall(".//action"):
                 actionElement = Action(act.attrib['id'],act.text)
                 case.actions[actionElement.id]= actionElement

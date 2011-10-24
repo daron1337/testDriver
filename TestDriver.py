@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 ## Program:   testDriver
 ## Module:    testDriver.py
 ## Language:  Python
@@ -18,11 +19,9 @@ from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time
 import sys, shlex, shutil, os
-from asyncproc import Process
+from Asyncproc import Process
 from subprocess import Popen
 from numpy.lib.function_base import linspace
-import signal
-
 class TestDriver(object):
     '''
     TestDriver class runs test cases of different types.
