@@ -18,7 +18,7 @@ from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time, sleep
 import sys, shlex, shutil, os
-from Asyncproc import Process
+from Asyncprocess import Process
 from subprocess import Popen
 from numpy.lib.function_base import linspace
 

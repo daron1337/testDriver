@@ -46,7 +46,6 @@ class Process(object):
         self.__inputsem = threading.Semaphore(0)
         # Flag telling feeder threads to quit
         self.__quit = False
-    
         self.__process = subprocess.Popen(*params, **kwparams)
     
         if self.__process.stdin:
