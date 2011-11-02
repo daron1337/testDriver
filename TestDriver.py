@@ -27,7 +27,7 @@ parser.add_option("-c", "--case", action="store",dest='case', type="string", def
 parser.add_option("-p", "--plan", action="store",dest='plan', type="string", default=None,
                   help="Specific test plan representing a set of test cases. Use the plan name as argument.")
 parser.add_option("-n", "--newPlanName", action="store",dest='newPlanName', type="string", default=None,
-                  help="Name for the new test plan. Testcases related to the new plan have to be defined with -l or --newPlanCases option.")
+                  help="Name for the new test plan. Testcases related to the new plan have to be defined with -n or --newPlanCases option.")
 parser.add_option("-s", "--newPlanCases", action="store",dest='newPlanCases', type="string", default=None,
                   help="TestCases related to the new Testplan defined with -n or --newPlanName option. A list of test cases can be defined using an interval (case1_Id:caseN_Id) or a set of cases (case1_Id,case2_Id,case3_Id,case6_Id,case8_Id).")
 parser.add_option("-l", "--readyLog", action="store",dest='readyLog', type="string", default="ReadyForTestDriver",
