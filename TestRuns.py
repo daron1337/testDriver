@@ -3,8 +3,8 @@
 ## Program:   testDriver
 ## Module:    testRuns.py
 ## Language:  Python
-## Date:      $Date: 2011/25/10 09:44:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/04/11 12:09:27 $
+## Version:   $Revision: 0.1.5 $
 
 ##      This software is distributed WITHOUT ANY WARRANTY; without even 
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
@@ -81,16 +81,16 @@ class TestRuns(object):
         Setting temporary directory for I/O files
         '''
         self.tmpDir = "projects/%s/tmp/" % (self.testCases.projectName)
-        inputFilesDir = "projects/%s/%s/" % (self.testCases.projectName,inputFilesDirName)
+        #inputFilesDir = "projects/%s/%s/" % (self.testCases.projectName,inputFilesDirName)
         if not os.path.exists (self.tmpDir):
             os.mkdir(self.tmpDir)
-        if not os.path.exists (inputFilesDir):
-            os.mkdir(inputFilesDir)
+        #if not os.path.exists (inputFilesDir):
+        #    os.mkdir(inputFilesDir)
         try:
-            shutil.copytree(inputFilesDir, self.tmpDir)
+            shutil.copytree(inputFilesDirName, self.tmpDir)
         except OSError:
             shutil.rmtree(self.tmpDir)
-            shutil.copytree(inputFilesDir, self.tmpDir)
+            shutil.copytree(inputFilesDirName, self.tmpDir)
             
     def CleanTmpDirectory(self):
         '''
@@ -119,11 +119,14 @@ class TestRuns(object):
         
         if testCasesIds.find(':') != -1:
             testCasesIds=split(testCasesIds,":")
-            caseInterval = linspace(int(testCasesIds[0]),int(testCasesIds[1]),int(testCasesIds[1])-(int(testCasesIds[0]))+1)
-            for x in caseInterval:
-                if str(int(x)) not in testCasesIds:
-                    testCasesIds.append(str(int(x)))
-            testCasesIds.sort()
+            if int(testCasesIds[0]) < int(testCasesIds[1]):
+                caseInterval = linspace(int(testCasesIds[0]),int(testCasesIds[1]),int(testCasesIds[1])-(int(testCasesIds[0]))+1)
+                for x in caseInterval:
+                    if str(int(x)) not in testCasesIds:
+                        testCasesIds.append(str(int(x)))
+                testCasesIds.sort()
+            else:
+                sys.exit("Error, please specify set a list of cases using an interval (case1_Id:caseN_Id) where case1_Id < caseN_Id")
     
         elif testCasesIds.find(',') != -1:
             testCasesIds=split(testCasesIds,",")
@@ -179,7 +182,7 @@ class TestRuns(object):
         '''
         Running selected test case calling specific method.
         '''
-        for testCase in self.testingCases:
+        for testCase in self.testingCases:        
             print "\nRunning TestCase_%s" % testCase.id
             print testCase.description
             if testCase.type == str(1):
@@ -211,6 +214,7 @@ class TestRuns(object):
         try:
             app = Process(args)
         except OSError:
+            self.CleanTmpDirectory()
             sys.exit("Error, please specify a valid path for the tested application.")
         try:
             sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
@@ -298,6 +302,7 @@ class TestRuns(object):
                 try:
                     app = Process(args)
                 except OSError:
+                    self.CleanTmpDirectory()
                     sys.exit("Error, please specify a valid path for the tested application.")
                 startTime = time()              
                 while testActions[actionId] == None:   
@@ -365,6 +370,7 @@ class TestRuns(object):
         try:
             app = Process(args)
         except OSError:
+            self.CleanTmpDirectory()
             sys.exit("Error, please specify a valid path for the tested application.")
         
         while ready == False:
@@ -464,6 +470,7 @@ class TestRuns(object):
             try:
                 app = Process(args)
             except OSError:
+                self.CleanTmpDirectory()
                 sys.exit("Error, please specify a valid path for the tested application.")
             while testActions[actionId] == None:
                 for responseId, response in sorted(testCase.responses.iteritems()):
@@ -519,6 +526,7 @@ class TestRuns(object):
         try:
             app = Process(args)
         except OSError:
+            self.CleanTmpDirectory()
             sys.exit("Error, please specify a valid path for the tested application.")
         while ready == False:
             outAndErr = app.readboth()

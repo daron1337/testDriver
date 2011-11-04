@@ -8,6 +8,9 @@
        <requirement>REQ-010101</requirement>
        <requirement>REQ-010102</requirement>
      </requirements> 
+     <preconditions>
+       <precondition></precondition>
+     </preconditions>
      <actions type="flag">
        <action id="1">Click on action button</action>
        <action id="2">Click on action button</action>
@@ -21,9 +24,12 @@
      <description>This test case is used for testing functionality related to action GUI button</description>
      <requirements>
        <requirement>REQ-010103</requirement>
-     </requirements> 
-     <actions type="command">
-       <action id="1">/Applications/Chess.app/Contents/MacOS/Chess</action>
+     </requirements>
+     <preconditions>
+       <precondition></precondition>
+     </preconditions> 
+     <actions type="flag">
+       <action id="1">-i</action>
        <action id="2">-i</action>
        <action id="3">-i</action>
        <action id="4">-i</action>
@@ -39,8 +45,11 @@
      <description>This test case is used for testing possibility to having action button disabled</description>
      <requirements>
        <requirement>REQ-020101</requirement>
-     </requirements> 
-     <actions type="command">
+     </requirements>
+     <preconditions>
+       <precondition></precondition>
+     </preconditions> 
+     <actions type="flag">
        <action id="1">-d</action>
        <action id="2">-d</action>
      </actions>

@@ -3,8 +3,8 @@
 ## Program:   testDriver
 ## Module:    testCases.py
 ## Language:  Python
-## Date:      $Date: 2011/25/10 09:46:13 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/04/11 12:09:27 $
+## Version:   $Revision: 0.1.5 $
 
 ##      This software is distributed WITHOUT ANY WARRANTY; without even 
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
@@ -32,6 +32,12 @@ class TestCases(object):
         self.projectVersion = None
         self.xmlPath = None
         self.Cases = {} #test cases dictionary, id:case
+        
+    def SetProjectVersion(self, version):
+        '''
+        Setting specific version tag or commit Id
+        '''
+        self.projectVersion = version
         
     def ReadXml(self, xmlpath):
         '''
