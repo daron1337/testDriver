@@ -1,0 +1,174 @@
+
+Date:   Fri Feb 10 10:57:23 2012 +0100
+
+   Version 0.1.6
+   Added two new modules
+   Connection.py used for launchin a web app as main app and checkin connection before running actions.
+   ScanPorts.py used for checking available ports.
+   TestRuns now returns case status result.
+   Now it is not mandatory to have projects folder inside your testDriver directory.
+   Possibility to specify main directory as argument to the testDriver.
+   Removed the dependency for numpy library.
+   Connection.py needs request python package.
+   Possibility to specify case Ids as names and not only as numbers.
+   
+   
+Date:   Fri Nov 4 12:11:27 2011 +0100
+
+    Folder and subfolder organization, possibility to set version/commit from co
+
+Date:   Wed Nov 2 16:29:41 2011 +0100
+
+    fixed command line args
+
+Date:   Wed Nov 2 14:27:49 2011 +0100
+
+    fixed the import for asyncprocess module
+
+Date:   Tue Oct 25 10:39:11 2011 +0200
+
+    main module now is called TestDriver and TestDriver module has been renamed 
+
+Date:   Mon Oct 24 10:00:47 2011 +0200
+
+    fixed Asyncproc, now it is faster than previous version
+
+Date:   Tue Oct 11 15:49:10 2011 +0200
+
+    Now testDriver class is able to handle OSError exception for async subproces
+
+Date:   Tue Oct 11 09:51:37 2011 +0200
+
+    fixed testDriver exit app status
+
+Date:   Mon Oct 10 16:02:55 2011 +0200
+
+    fixed testDriver
+
+Date:   Mon Oct 10 14:49:16 2011 +0200
+
+    Now is possible to specify an interval of casesIds and not only a list of id
+
+Date:   Mon Oct 10 12:46:46 2011 +0200
+
+    fixed automated tests
+
+Date:   Fri Oct 7 16:26:41 2011 +0200
+
+    updated schema
+
+Date:   Fri Oct 7 16:18:30 2011 +0200
+
+    minor fixes
+
+Date:   Fri Oct 7 16:07:26 2011 +0200
+
+    added possibility to specify different actions types for automated test, bet
+
+Date:   Tue Jul 5 12:52:25 2011 +0200
+
+    added support to preconditions into each case and minor bug fixes
+
+Date:   Tue Jun 28 14:13:28 2011 +0200
+
+    fixed terminate process without waiting
+
+Date:   Tue Jun 28 12:04:19 2011 +0200
+
+    minor fixes
+
+Date:   Thu May 19 09:49:07 2011 +0200
+
+    fixed class documentation
+
+Date:   Tue May 17 16:02:44 2011 +0200
+
+    fixed SetTmpDirectory
+
+Date:   Tue May 17 15:22:35 2011 +0200
+
+    fixed testCase sorting
+
+Date:   Mon May 16 16:20:32 2011 +0200
+
+    local environment folders
+
+Date:   Thu May 12 15:09:43 2011 +0200
+
+    fixed license
+
+Date:   Thu May 12 15:04:04 2011 +0200
+
+    fixed testCase 3
+
+Date:   Mon May 9 11:41:29 2011 +0200
+
+    fixed output messages
+
+Date:   Mon May 9 10:44:18 2011 +0200
+
+    fixed testCase type1
+
+Date:   Mon May 9 10:17:19 2011 +0200
+
+    Main.py
+
+Date:   Wed May 4 10:17:17 2011 +0200
+
+    fixed projects folder
+    
+Date:   Wed May 4 10:14:58 2011 +0200
+
+    projects floder added
+
+Date:   Wed May 4 10:13:49 2011 +0200
+
+    tester app renamed and fixed
+
+Date:   Tue May 3 17:45:10 2011 +0200
+
+    minor fixes
+
+Date:   Tue May 3 16:38:56 2011 +0200
+
+    addedscreenshot feature for test type 3
+
+Date:   Tue May 3 16:12:23 2011 +0200
+
+    added xsd schema files
+
+Date:   Tue May 3 16:11:51 2011 +0200
+
+    added stderr reading
+
+Date:   Tue May 3 16:10:48 2011 +0200
+
+    TestDriver.py
+
+Date:   Mon May 2 16:27:05 2011 +0200
+
+    asyncproc module added, created TestResults class
+
+Date:   Thu Apr 28 17:07:45 2011 +0200
+
+    fixed
+
+Date:   Thu Apr 28 16:28:35 2011 +0200
+
+    first version
+
+Date:   Wed Apr 27 16:56:31 2011 +0200
+
+    added possibility to manually quit a test
+
+Date:   Tue Apr 26 09:33:13 2011 +0200
+
+    PollingApp added
+
+Date:   Thu Apr 14 16:47:55 2011 +0200
+
+    added testruns methods in testdriver
+
+Date:   Thu Apr 14 14:46:01 2011 +0200
+
+    xml read and data structures
