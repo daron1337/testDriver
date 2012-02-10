@@ -3,8 +3,8 @@
 ## Program:   testDriver
 ## Module:    testRuns.py
 ## Language:  Python
-## Date:      $Date: 2011/04/11 12:09:27 $
-## Version:   $Revision: 0.1.5 $
+## Date:      $Date: 2012/02/10 10:01:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##      This software is distributed WITHOUT ANY WARRANTY; without even 
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
@@ -20,7 +20,7 @@ from time import time, sleep
 import sys, shlex, shutil, os
 from Asyncprocess import Process
 from subprocess import Popen
-from numpy.lib.function_base import linspace
+from Connection import waitUntilConnection
 
 class TestRuns(object):
     '''
@@ -57,12 +57,31 @@ class TestRuns(object):
         self.testRail = False
         self.userDefinedKill = None
         self.sleepingTime = None
+        self.connection = False
+        self.connectionIp = None
+        self.mainDir = 'projects/'
         
     def SetSleepingTime(self, sleepingTime):
         '''
         Setting sleeping time for command type actions. It represent the time before an action process is killed if test action is successfull.
         '''
         self.sleepingTime = sleepingTime
+    
+    def SetMainDirectory(self, mainDirectory):
+        '''
+        Setting main directory for current project. If not specified testDriver will use /projects/project_name 
+        '''
+        if mainDirectory == 'main':
+            self.mainDir = ''
+        else:
+            self.mainDir = mainDirectory
+        
+    def SetConnection(self, connectionPort):
+        '''
+        Setting connection port for waitUntilConnection module.
+        '''
+        self.connection = True
+        self.connectionIp = "http://127.0.0.1:%s" %connectionPort
         
     def SetUserDefinedKill(self, userDefinedKill):
         '''
@@ -80,17 +99,21 @@ class TestRuns(object):
         '''
         Setting temporary directory for I/O files
         '''
-        self.tmpDir = "projects/%s/tmp/" % (self.testCases.projectName)
-        #inputFilesDir = "projects/%s/%s/" % (self.testCases.projectName,inputFilesDirName)
+        if self.mainDir != 'projects/':
+            self.tmpDir = self.mainDir+"tmp/"
+            inputFilesDir = self.mainDir+"%s/" % inputFilesDirName
+        else:    
+            self.tmpDir = self.mainDir+"%s/tmp/" % (self.testCases.projectName)
+            inputFilesDir = self.mainDir+"%s/%s/" % (self.testCases.projectName,inputFilesDirName)
         if not os.path.exists (self.tmpDir):
             os.mkdir(self.tmpDir)
-        #if not os.path.exists (inputFilesDir):
-        #    os.mkdir(inputFilesDir)
+        if not os.path.exists (inputFilesDir):
+            os.mkdir(inputFilesDir)
         try:
-            shutil.copytree(inputFilesDirName, self.tmpDir)
+            shutil.copytree(inputFilesDir, self.tmpDir)
         except OSError:
             shutil.rmtree(self.tmpDir)
-            shutil.copytree(inputFilesDirName, self.tmpDir)
+            shutil.copytree(inputFilesDir, self.tmpDir)
             
     def CleanTmpDirectory(self):
         '''
@@ -119,14 +142,15 @@ class TestRuns(object):
         
         if testCasesIds.find(':') != -1:
             testCasesIds=split(testCasesIds,":")
-            if int(testCasesIds[0]) < int(testCasesIds[1]):
-                caseInterval = linspace(int(testCasesIds[0]),int(testCasesIds[1]),int(testCasesIds[1])-(int(testCasesIds[0]))+1)
-                for x in caseInterval:
-                    if str(int(x)) not in testCasesIds:
-                        testCasesIds.append(str(int(x)))
-                testCasesIds.sort()
-            else:
-                sys.exit("Error, please specify set a list of cases using an interval (case1_Id:caseN_Id) where case1_Id < caseN_Id")
+            try:
+                caseInterval = range(int(testCasesIds[0]),int(testCasesIds[1])+1)
+            except ValueError, e:
+                sys.exit(str(e)+"\nYou need cases id as numbers if you want to set a testplan using an interval (example from 1 to 10 -> 1:10")
+                
+            for x in caseInterval:
+                if str(int(x)) not in testCasesIds:
+                    testCasesIds.append(str(int(x)))
+            testCasesIds.sort()
     
         elif testCasesIds.find(',') != -1:
             testCasesIds=split(testCasesIds,",")
@@ -140,10 +164,15 @@ class TestRuns(object):
                 self.testingCases.append(self.testCases.Cases[testId])  
             except KeyError:
                 error = "Error, case %s is not defined into testCases xml file." % testId
-                sys.exit(error)       
-        filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)
-        if not os.path.exists ("projects/%s/plans/" % self.testCases.projectName):
-            os.mkdir("projects/%s/plans/" % self.testCases.projectName)
+                sys.exit(error)
+        if self.mainDir != 'projects/':
+            filepath = self.mainDir+"plans/%s.xml" % planName
+            if not os.path.exists (self.mainDir+"plans/%s.xml" % planName):
+                os.mkdir(self.mainDir+"plans/%s.xml" % planName)
+        else:
+            filepath = "projects/%s/plans/%s.xml" % (self.testCases.projectName,planName)
+            if not os.path.exists ("projects/%s/plans/" % self.testCases.projectName):
+                os.mkdir("projects/%s/plans/" % self.testCases.projectName)
         root = etree.Element("Project", id=self.testCases.projectId, name=self.testCases.projectName, version=self.testCases.projectVersion)
         plan = etree.ElementTree(root)
         testPlan = etree.SubElement(root,"testPlan", name=planName)
@@ -182,7 +211,7 @@ class TestRuns(object):
         '''
         Running selected test case calling specific method.
         '''
-        for testCase in self.testingCases:        
+        for testCase in self.testingCases:
             print "\nRunning TestCase_%s" % testCase.id
             print testCase.description
             if testCase.type == str(1):
@@ -214,7 +243,6 @@ class TestRuns(object):
         try:
             app = Process(args)
         except OSError:
-            self.CleanTmpDirectory()
             sys.exit("Error, please specify a valid path for the tested application.")
         try:
             sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
@@ -278,6 +306,8 @@ class TestRuns(object):
                 app.terminate()
             else:
                 Popen(self.userDefinedKill)
+        result = (testCase.id,testCase.status)       
+        return result
     
     def RunTestCaseType2_flag(self, appPath, testCase):
         '''
@@ -302,7 +332,6 @@ class TestRuns(object):
                 try:
                     app = Process(args)
                 except OSError:
-                    self.CleanTmpDirectory()
                     sys.exit("Error, please specify a valid path for the tested application.")
                 startTime = time()              
                 while testActions[actionId] == None:   
@@ -351,7 +380,9 @@ class TestRuns(object):
         if testFailed == False:
             print "TEST %s PASSED" % testCase.id
             testCase.status = 'PASSED'
-            
+        result = (testCase.id,testCase.status)       
+        return result
+         
     def RunTestCaseType2_command(self, appPath, testCase):
         '''
         This method runs type2 tests with command type actions. This kind of test takes as input a list
@@ -367,18 +398,29 @@ class TestRuns(object):
         appArgs = appPath
         args = shlex.split(appArgs)
         ready = False
+        
         try:
             app = Process(args)
-        except OSError:
-            self.CleanTmpDirectory()
+        except OSError, e:
+            print str(e)
             sys.exit("Error, please specify a valid path for the tested application.")
-        
-        while ready == False:
-            outAndErr = app.readboth()
-            for out in outAndErr:
-                if out.find(self.readyLog) != -1:
-                    print "Main application is ready, starting test actions"
-                    ready = True
+            
+        if self.readyLog is not None:
+            while ready == False:
+                outAndErr = app.readboth()
+                for out in outAndErr:
+                    if out.find(self.readyLog) != -1:
+                        print "Main application is ready, starting test actions"
+                        ready = True
+                
+        elif self.connection:
+            success = waitUntilConnection(self.connectionIp,maxTries=20,interval=1,verbose=False)
+            if success == False:
+                sys.exit("Error, main application is not ready")
+            else:
+                print "Main application is ready, starting test actions"
+        else:
+            sys.exit("Error, Please set a readyLog or use the connection module for launching main application")
             
         try:
             sortedCases = [(k, testCase.actions[k]) for k in sorted(testCase.actions, key=asint)]
@@ -390,7 +432,7 @@ class TestRuns(object):
                 actionArgs = shlex.split(action.action)
                 try:
                     actionRunning = Popen(actionArgs)
-                except OSError:
+                except OSError, e:
                     if self.userDefinedKill is None:
                         app.terminate()
                     else:
@@ -450,6 +492,8 @@ class TestRuns(object):
                 app.terminate()
             else:
                 Popen(self.userDefinedKill)
+        result = (testCase.id,testCase.status)       
+        return result        
             
     def RunTestCaseType3_flag(self, appPath, testCase):
         '''
@@ -470,7 +514,6 @@ class TestRuns(object):
             try:
                 app = Process(args)
             except OSError:
-                self.CleanTmpDirectory()
                 sys.exit("Error, please specify a valid path for the tested application.")
             while testActions[actionId] == None:
                 for responseId, response in sorted(testCase.responses.iteritems()):
@@ -509,6 +552,8 @@ class TestRuns(object):
             print "TEST %s PASSED" % testCase.id
             self.TakeScreenshot(testCase.id)
             testCase.status = 'PASSED'
+        result = (testCase.id,testCase.status)       
+        return result
             
     def RunTestCaseType3_command(self, appPath, testCase):
         '''
@@ -526,7 +571,6 @@ class TestRuns(object):
         try:
             app = Process(args)
         except OSError:
-            self.CleanTmpDirectory()
             sys.exit("Error, please specify a valid path for the tested application.")
         while ready == False:
             outAndErr = app.readboth()
@@ -595,6 +639,8 @@ class TestRuns(object):
                 app.terminate()
             else:
                 Popen(self.userDefinedKill)
+        result = (testCase.id,testCase.status)       
+        return result
     
     def testDriverToTestRail(self):
         '''
@@ -620,7 +666,10 @@ class TestRuns(object):
         captureStartPos = (0, 0)    # Arbitrary U-L position anywhere within the screen
         bitmap = ScreenCapture( captureStartPos, captureBmapSize )
         
-        folder = 'projects/%s/results/' % (self.testCases.projectName)
+        if self.mainDir != 'projects/':
+            folder = self.mainDir +'results/'
+        else:
+            folder = 'projects/%s/results/' % (self.testCases.projectName)
         if actionId == None:
             fileBasename = 'test%s' %(testCaseId)
         else:
@@ -631,7 +680,7 @@ class TestRuns(object):
 
 def asint(s):
     '''
-    This function convert a sting into integer.
+    This function convert a string into integer.
     It's used for sorting a dictionary with key 
     represented with string numbers.
     '''

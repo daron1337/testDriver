@@ -3,21 +3,22 @@
 ## Program:   testDriver
 ## Module:    TestResults.py
 ## Language:  Python
-## Date:      $Date: 2011/04/11 12:09:27 $
-## Version:   $Revision: 0.1.5 $
+## Date:      $Date: 2012/02/10 10:01:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##      This software is distributed WITHOUT ANY WARRANTY; without even 
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
 ##      PURPOSE.  See the above copyright notices for more information.
 
 from xml.etree import ElementTree as etree
+import os
 
 class TestResults(object):
     '''
     TestResults class writes testing results in a .xml file
     and in a .txt file.
     This class has the following methods:
-    SetTestingResults: a method for setting results from testDriver class
+    SetTestingResults: a method for setting results from testRuns class
     RetrieveResults: a method for retrieving testResults
     WriteTxt: a method for writing results in a .txt file
     WriteXml: a method for writing results in a .xml file
@@ -31,18 +32,20 @@ class TestResults(object):
         self.testedCases = None
         self.testPlanName = None
         self.results = {} #test:result
+        self.mainDir = None
     
-    def SetTestingResults(self, testDriver):
+    def SetTestingResults(self, testRuns):
         '''
-        Setting testDriver class
+        Setting testRuns class
         '''
-        self.testCases = testDriver.testCases
-        if testDriver.testPlan:
-            self.testPlanName = testDriver.testPlan.keys()[0]
-            self.testedCases = testDriver.testPlan[self.testPlanName]
+        self.testCases = testRuns.testCases
+        self.mainDir = testRuns.mainDir
+        if testRuns.testPlan:
+            self.testPlanName = testRuns.testPlan.keys()[0]
+            self.testedCases = testRuns.testPlan[self.testPlanName]
         else:
-            self.testedCases = testDriver.testingCases[0].id
-     
+            self.testedCases = testRuns.testingCases[0].id
+        
     def RetrieveResults(self):
         '''
         This method retrieves test results
@@ -65,7 +68,14 @@ class TestResults(object):
         for c in self.testCases.Cases.itervalues():
             test_list.append(c.id)
         test_list.sort()  
-        txtpath = "projects/%s/results/%s.txt" % (self.testCases.projectName,name)
+        if self.mainDir != 'projects/':
+            txtpath = self.mainDir+"results/%s.txt" % name
+            if not os.path.exists (self.mainDir+"results/"):
+                os.mkdir(self.mainDir+"results/")
+        else:
+            txtpath = "projects/%s/results/%s.txt" % (self.testCases.projectName,name)
+            if not os.path.exists ("projects/%s/" % self.testCases.projectName):
+                os.mkdir("projects/%s/" % self.testCases.projectName)
         text_file = open(txtpath, "w")
         text_file.write("Project Id:%s, Name:%s, Version:%s\n" % (self.testCases.projectId, self.testCases.projectName, self.testCases.projectVersion))
         text_file.write("TestResults for %s\n" % name)
@@ -92,7 +102,15 @@ class TestResults(object):
         for c in self.testCases.Cases.itervalues():
             test_list.append(c.id)
         test_list.sort()   
-        filepath = "projects/%s/results/%s.xml" % (self.testCases.projectName,name)
+        if self.mainDir != 'projects/':
+            filepath = self.mainDir+"results/%s.txt" % name
+            if not os.path.exists (self.mainDir+"results/"):
+                os.mkdir(self.mainDir+"results/")
+        else:
+            filepath = "projects/%s/results/%s.txt" % (self.testCases.projectName,name)
+            if not os.path.exists ("projects/%s/" % self.testCases.projectName):
+                os.mkdir("projects/%s/" % self.testCases.projectName)
+        
         root = etree.Element("Project", id=self.testCases.projectId, name=self.testCases.projectName, version=self.testCases.projectVersion)
         results = etree.ElementTree(root)
         testResults = etree.SubElement(root,"testResults", id=str(name))

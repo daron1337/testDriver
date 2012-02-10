@@ -1,4 +1,3 @@
-
 #! /usr/bin/env python
 
 import os
@@ -9,7 +8,7 @@ import subprocess
 
 class Process(object):
     '''
-    Manager for an asynchronous process.
+    This class is a Manager for an asynchronous process.
     The process will be run in the background, and its standard output
     and standard error will be collected asynchronously.
 
