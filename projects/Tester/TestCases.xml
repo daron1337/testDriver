@@ -17,7 +17,7 @@
      </actions>
      <responses>
        <response id="1">@Log:Tester doAction message=Action OK</response>
-       <response id="2">@Log:Tester doAction message=Action NO</response>
+       <response id="2">@Log:Tester doAction message=Action OK</response>
      </responses>
    </testCase>
    <testCase id="2" sd="2" type="2" name="action_button_2">
