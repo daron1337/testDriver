@@ -256,7 +256,7 @@ class TestRuns(object):
                 while testActions[actionId] == None:
                     outAndErr = app.readboth()
                     for out in outAndErr:
-                        sleep(0.5)
+                        sleep(0.1)
                         for responseId, response in sorted(testCase.responses.iteritems()):
                             if responseId == actionId:
                                 log = response.response
@@ -338,7 +338,7 @@ class TestRuns(object):
                 while testActions[actionId] == None:   
                     outAndErr = app.readboth()
                     for out in outAndErr:
-                        sleep(0.5)
+                        sleep(0.1)
                         for responseId, response in sorted(testCase.responses.iteritems()):
                             if responseId == actionId:
                                 log = response.response
@@ -448,7 +448,7 @@ class TestRuns(object):
                 while testActions[actionId] == None:
                     outAndErr = app.readboth() 
                     for out in outAndErr:
-                        sleep(0.5)
+                        sleep(0.1)
                         for responseId, response in sorted(testCase.responses.iteritems()):
                             if responseId == actionId:
                                 log = response.response
