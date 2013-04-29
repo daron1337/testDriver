@@ -46,6 +46,8 @@ parser.add_option("-k", "--kill", action="store",dest='userDefinedKill', type="s
                   help="Setting user-defined instruction for killing the main testing application. By default is none and main application will be killed using the standard terminate() method from the Asyncproc.py Class.")
 parser.add_option("-m", "--sleepingTime", action="store",dest='sleepingTime', type="int", default=1,
                   help="Sleeping time (in seconds) which will be used for command type actions tests. By default sleepingTime = 1 second.")
+parser.add_option("-e", "--exportResults", action="store", type="string", dest='export', default=None,
+                  help="Exporting test plan results to testRail db using the API.")
 
 (options, args) = parser.parse_args()
 
@@ -60,6 +62,28 @@ testResults = TestResults()
 #Setting main working directory
 if options.mainDirectory is not None:
     testRuns.SetMainDirectory(options.mainDirectory)
+
+#Exporting results to testRail
+if options.export:
+    print "Exporting results to testRail"
+    if options.xml is None:
+        sys.exit("Error, please specify the path to the testCases xml file.")  
+    testCases = project.ReadXml(options.xml)  #setting the testCases xml file
+    #testRuns.SetTestCases(project)
+    from TestDriverDbApi import TestDriverDbApi
+    testRuns.testRail = True
+    testDriverDbApi = TestDriverDbApi()
+    testDriverDbApi.ConnectDb('127.0.0.1','testrail','password','dbName')
+    testDriverDbApi.SetTestCases(project)
+    testDriverDbApi.SetRunName(options.plan)
+    
+    testResults.ReadTxt(options.export)
+    
+    testRuns.SetDbApi(testDriverDbApi)
+    
+    
+    testRuns.testDriverToTestRail()
+    sys.exit("DONE")
 
 #Setting the log for the main application in case of automated test with command option.
 if options.readyLog is not None:

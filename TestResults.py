@@ -54,7 +54,31 @@ class TestResults(object):
             for t in self.testedCases:
                 if c.id == t:
                     self.results[c] = c.status
- 
+    
+    def ReadTxt(self, plan_name):
+        '''
+        '''
+        results = {} #id,status
+        
+        txt_path = "plan_%s.txt" % plan_name
+        text_file = open(txt_path, "r")        
+        while True:
+            text = text_file.readline()
+            if text.startswith("case"):
+                row = text.split(':')
+                caseId = row[0][4:]
+                result = row[1]
+                results[caseId]=result
+            if text == "":
+                break
+        text_file.close()
+        
+        for case_id, case in self.testCases.Cases.iteritems():
+            for c,r in results.iteritems():
+                print case_id, c, type(case_id), type(c)
+                if case_id == c:
+                    case.status = r        
+    
     def WriteTxt(self):
         '''
         This method writes test results related to a single
