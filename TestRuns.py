@@ -10,10 +10,7 @@
 ##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
 ##      PURPOSE.  See the above copyright notices for more information.
 
-try:
-    import wx
-except:
-    print "Screenshot feature not available, please install wxpython package"
+
 from xml.etree import ElementTree as etree
 from string import split, lower
 from time import time, sleep
@@ -660,15 +657,6 @@ class TestRuns(object):
         This method takes a screenshot.
         '''
         
-        thisApp = wx.App( redirect=False )      # Need to access WX functionality without MainLoop().
-    
-        # Capture the entire primary Desktop screen.
-        captureBmapSize = (wx.SystemSettings.GetMetric( wx.SYS_SCREEN_X ), 
-                           wx.SystemSettings.GetMetric( wx.SYS_SCREEN_Y ) )
-                           
-        captureStartPos = (0, 0)    # Arbitrary U-L position anywhere within the screen
-        bitmap = ScreenCapture( captureStartPos, captureBmapSize )
-        
         if self.mainDir != 'projects/':
             folder = self.mainDir +'results/'
         else:
@@ -679,7 +667,8 @@ class TestRuns(object):
             fileBasename = 'test%s_action_%s' %(testCaseId,actionId)
         fileExt = '.png'
         filename = folder + fileBasename + fileExt
-        bitmap.SaveFile( filename, wx.BITMAP_TYPE_PNG )
+        
+        os.system('screencapture %s.png') % filename
 
 def asint(s):
     '''
@@ -710,43 +699,3 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-
-def ScreenCapture( captureStartPos, captureBmapSize ):
-    """
-    General Desktop screen portion capture - partial or entire Desktop.
-    Any particular Desktop screen size is :
-        screenRect = wx.Display( n ).GetGeometry()      
-    """
-    scrDC = wx.ScreenDC()
-    scrDcSize = scrDC.Size
-
-    # Cross-platform adaptations :
-    scrDcBmap     = scrDC.GetAsBitmap()
-    scrDcBmapSize = scrDcBmap.GetSize()
-    
-    # Check if scrDC.GetAsBitmap() method has been implemented on this platform.
-    if   scrDcBmapSize == (0, 0) :      # Not implemented :  Get the screen bitmap the long way.
-
-        # Create a new empty (black) destination bitmap the size of the scrDC. 
-        scrDcBmap = wx.EmptyBitmap( *scrDcSize )    # Overwrite the invalid original assignment.
-        scrDcBmapSizeX, scrDcBmapSizeY = scrDcSize
-
-        # Create a DC tool that is associated with scrDcBmap.
-        memDC = wx.MemoryDC( scrDcBmap )
-
-        # Copy (blit, "Block Level Transfer") a portion of the screen bitmap 
-        #   into the returned capture bitmap.
-        # The bitmap associated with memDC (scrDcBmap) is the blit destination.
-
-        memDC.Blit( 0, 0,                           # Copy to this start coordinate.
-                    scrDcBmapSizeX, scrDcBmapSizeY, # Copy an area this size.
-                    scrDC,                          # Copy from this DC's bitmap.
-                    0, 0,                    )      # Copy from this start coordinate.
-
-        memDC.SelectObject( wx.NullBitmap )     # Finish using this wx.MemoryDC.
-                                                # Release scrDcBmap for other uses.        
-    else :
-        # This platform has scrDC.GetAsBitmap() implemented.
-        scrDcBmap = scrDC.GetAsBitmap()     # So easy !  Copy the entire Desktop bitmap.
-   
-    return scrDcBmap.GetSubBitmap( wx.RectPS( captureStartPos, captureBmapSize ) )

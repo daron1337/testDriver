@@ -73,17 +73,22 @@ if options.export:
     from TestDriverDbApi import TestDriverDbApi
     testRuns.testRail = True
     testDriverDbApi = TestDriverDbApi()
-    testDriverDbApi.ConnectDb('127.0.0.1','testrail','password','dbName')
+    testDriverDbApi.ConnectDb('127.0.0.1','userName','password','dbName')
     testDriverDbApi.SetTestCases(project)
-    testDriverDbApi.SetRunName(options.plan)
-    
-    testResults.ReadTxt(options.export)
+    planName = options.export.split('.')[0].split('plan_')[1]
+    testDriverDbApi.SetRunName(planName)
+    testResults.testCases = testCases
+    cases = testResults.ReadTxt(options.export)
     
     testRuns.SetDbApi(testDriverDbApi)
-    
-    
-    testRuns.testDriverToTestRail()
-    sys.exit("DONE")
+    try:
+        for testCase in testResults.testCases.itervalues() :
+            if testCase.id in cases.keys():
+                print testCase.id, testCase.name, testCase.status
+                testDriverDbApi.InsertIntoDb(testCase.name)
+    except Exception,e:
+        sys.exit("Error while exporting results to testRail:\n, %s") % e
+    sys.exit("Results successfully exported to testRail.")
 
 #Setting the log for the main application in case of automated test with command option.
 if options.readyLog is not None:

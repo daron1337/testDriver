@@ -55,13 +55,14 @@ class TestResults(object):
                 if c.id == t:
                     self.results[c] = c.status
     
-    def ReadTxt(self, plan_name):
+    def ReadTxt(self, txt_path):
         '''
+        This method read test results txt file for a single
+        case or a complete test plan.
         '''
         results = {} #id,status
         
-        txt_path = "plan_%s.txt" % plan_name
-        text_file = open(txt_path, "r")        
+        text_file = open(txt_path, "r")       
         while True:
             text = text_file.readline()
             if text.startswith("case"):
@@ -77,7 +78,8 @@ class TestResults(object):
             for c,r in results.iteritems():
                 print case_id, c, type(case_id), type(c)
                 if case_id == c:
-                    case.status = r        
+                    case.status = r 
+        return results       
     
     def WriteTxt(self):
         '''
