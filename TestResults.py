@@ -74,9 +74,8 @@ class TestResults(object):
                 break
         text_file.close()
         
-        for case_id, case in self.testCases.Cases.iteritems():
+        for case_id, case in self.testCases.iteritems():
             for c,r in results.iteritems():
-                print case_id, c, type(case_id), type(c)
                 if case_id == c:
                     case.status = r 
         return results       
