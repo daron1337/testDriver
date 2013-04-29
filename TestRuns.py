@@ -668,7 +668,8 @@ class TestRuns(object):
         fileExt = '.png'
         filename = folder + fileBasename + fileExt
         
-        os.system('screencapture %s.png') % filename
+        cmdstring = "screencapture %s" % filename
+        os.system(cmdstring)
 
 def asint(s):
     '''
